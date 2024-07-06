@@ -21,8 +21,8 @@ class LoggingConfig:
 
 
 @dataclass
-class GRPCConfig:
-    db_accessor_app_id: str
+class GRPCSettings:
+    port: int
 
 
 @dataclass
@@ -30,7 +30,7 @@ class Config:
     redis: RedisSettings
     logging: LoggingConfig
     storage: StorageSettings
-    grpc: GRPCConfig
+    grpc: GRPCSettings
 
 
 def load_config():
@@ -38,13 +38,13 @@ def load_config():
         logging=LoggingConfig(logging_config),
         redis=RedisSettings(host='localhost' if DEBUG else 'redis', port=6379),
         storage=StorageSettings(email_prefix='EMAIL:'),
-        grpc=GRPCConfig(db_accessor_app_id='db_accessor')
+        grpc=GRPCSettings(port=50052 if DEBUG else 50051)
     )
 
 
 logging_config = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'default': {
             'format': '#[%(asctime)s] #%(levelname)-8s %(filename)s:'

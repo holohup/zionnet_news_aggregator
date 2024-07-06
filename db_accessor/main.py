@@ -64,4 +64,4 @@ def delete_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
 
 if __name__ == '__main__':
     logger.info('Starting db_accessor')
-    app.run(50052)
+    app.run(config.grpc.port)

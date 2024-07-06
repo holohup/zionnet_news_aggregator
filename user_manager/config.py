@@ -26,7 +26,7 @@ def load_config():
 
 logging_config = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'default': {
             'format': '#[%(asctime)s] #%(levelname)-8s %(filename)s:'

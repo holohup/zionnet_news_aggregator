@@ -1,0 +1,112 @@
+services:  
+  api_gateway:
+    # env_file:
+    #   - TCSApiAccessor/.env.example
+    build:
+      context: api_gateway
+      # uncomment the next line to run on a Raspberry Pi
+      # dockerfile: Dockerfile_raspberry_pi
+    volumes:
+      - ./logs/:/app/log/
+    networks:
+      - digester_network
+    ports:
+      - 8000:8000
+  api_gateway-dapr:
+    image: "daprio/daprd:edge"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 10
+        window: 120s
+    command: [
+      "./daprd",
+      "--app-id", "api_gateway",
+      "--app-port", "8000",
+      "--resources-path", "./components"
+    ]
+    volumes:
+      - "./components/:/components"
+    depends_on:
+      - api_gateway
+    network_mode: "service:api_gateway"
+
+  db_accessor:
+    build:
+      context: db_accessor
+    volumes:
+      - ./logs/:/app/log/
+    networks: 
+      - digester_network
+    depends_on:
+      redis:
+        condition: service_healthy
+  db_accessor-dapr:
+    image: "daprio/daprd:edge"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 10
+        window: 120s
+    command: [
+      "./daprd",
+      "--app-id", "db_accessor",
+      "--app-port", "50051",
+      "--app-protocol", "grpc",
+      "--resources-path", "./components"
+    ]
+    volumes:
+      - "./components/:/components"
+    depends_on:
+      - db_accessor
+    network_mode: "service:db_accessor"
+
+  user_manager:
+    build:
+      context: user_manager
+    volumes:
+      - ./logs/:/app/log/
+    networks: 
+      - digester_network
+    depends_on:
+      - db_accessor
+  user_manager-dapr:
+    image: "daprio/daprd:edge"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 10
+        window: 120s
+    command: [
+      "./daprd",
+      "--app-id", "user_manager",
+      "--app-port", "50051",
+      "--app-protocol", "grpc",
+      "--resources-path", "./components"
+    ]
+    volumes:
+      - "./components/:/components"
+    depends_on:
+      - user_manager
+    network_mode: "service:user_manager"
+
+  redis:
+    image: redis:latest
+    restart: always
+    volumes:
+      - ./redis/data:/data
+    command: ["redis-server", "--save 60 1",  "--loglevel warning"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - digester_network
+
+networks:
+  digester_network:
+    driver: bridge

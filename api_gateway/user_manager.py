@@ -7,7 +7,6 @@ from dapr.aio.clients import DaprClient
 from dapr.clients.grpc._response import InvokeMethodResponse
 from dapr.clients.exceptions import DaprInternalError
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -26,7 +25,7 @@ class UserManager:
                 )
         except DaprInternalError as e:
             logger.error(str(e))
-            raise
+            return self._server_error_dict
         response = json.loads(result.text())
         logger.info(f'Received response from UserManager: {response=}')
         if response['result'] == 'error':
@@ -44,7 +43,7 @@ class UserManager:
                 )
         except DaprInternalError as e:
             logger.error(str(e))
-            raise
+            return self._server_error_dict
         response = json.loads(result.text())
         logger.info(f'Received response from UserManager: {response=}')
         if response['result'] == 'error':
@@ -54,3 +53,7 @@ class UserManager:
 
     def _response_to_dict(self, response):
         return {s: response[s] for s in ('result', 'status_code', 'detail')}
+
+    @property
+    def _server_error_dict(self):
+        return {'result': 'error', 'status_code': 500, 'detail': 'Internal server error, check API Gateway logs'}

@@ -8,7 +8,7 @@ from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
 
 from config import load_config
 from db_accessor import DB_Accessor
-from schema import CreateUserManagerResponse
+
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)

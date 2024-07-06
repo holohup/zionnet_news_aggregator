@@ -38,5 +38,6 @@ async def delete_user(user_email: str):
     return None
 
 if __name__ == '__main__':
+    logger.info('Starting API Gateway')
     import uvicorn
     uvicorn.run(app=app, host='0.0.0.0', port=8000)
