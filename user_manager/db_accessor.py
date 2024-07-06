@@ -30,4 +30,21 @@ class DB_Accessor:
             raise
         response = json.loads(result.text())
         logger.info(f'Received response from DB Accessor: {response=}')
-        return {'result': response['result'], 'status_code': response['status_code'], 'detail': response['detail']}
+        return self._response_to_dict(response)
+
+    def delete_user(self, user_data: str):
+        logger.info('Deleting user.')
+        try:
+            with DaprClient() as client:
+                result: InvokeMethodResponse = client.invoke_method(
+                    self._app_id, 'delete_user', user_data
+                )
+        except DaprInternalError as e:
+            logger.error(str(e))
+            raise
+        response = json.loads(result.text())
+        logger.info(f'Received response from DB Accessor: {response=}')
+        return self._response_to_dict(response)
+
+    def _response_to_dict(self, response):
+        return {s: response[s] for s in ('result', 'status_code', 'detail')}

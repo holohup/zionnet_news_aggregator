@@ -26,6 +26,15 @@ def register_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
     return InvokeMethodResponse(data=json.dumps(result))
 
 
+@app.method(name='delete_user')
+def delete_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    data = request.text()
+    logger.info(f'Received deletion request for {data}')
+    result = db_accessor.delete_user(data)
+    logger.info(f'Sending result {result}')
+    return InvokeMethodResponse(data=json.dumps(result))
+
+
 if __name__ == '__main__':
     logger.info('Starting UserManager')
     app.run(50051)

@@ -10,8 +10,16 @@ exists_response = DB_Accessor_Response(
     }
 )
 
+user_deleted_response = DB_Accessor_Response(
+    **{
+        'result': 'ok',
+        'status_code': HTTPStatus.NO_CONTENT,
+        'detail': '',
+    }
+)
 
-def created_response(user_info):
+
+def created_response(user_info) -> DB_Accessor_Response:
     return DB_Accessor_Response(
         **{
             'result': 'ok',
@@ -21,11 +29,21 @@ def created_response(user_info):
     )
 
 
-def exception_response(exception: str):
+def exception_response(exception: str) -> DB_Accessor_Response:
     return DB_Accessor_Response(
         **{
             'result': 'error',
             'status_code': HTTPStatus.CREATED,
             'detail': exception,
+        }
+    )
+
+
+def user_not_found(email: str) -> DB_Accessor_Response:
+    return DB_Accessor_Response(
+        **{
+            'result': 'error',
+            'status_code': HTTPStatus.NOT_FOUND,
+            'detail': f'User {email} not found',
         }
     )

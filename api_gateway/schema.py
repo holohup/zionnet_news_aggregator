@@ -1,17 +1,8 @@
-from pydantic import BaseModel, EmailStr, field_validator, validate_email
-
-
-class LowerEmailStr(EmailStr):
-    """Convert email to lowercase right from the start to exclude duplicates."""
-
-    @classmethod
-    def validate(cls, value: EmailStr) -> EmailStr:
-        email = validate_email(value)[1]
-        return email.lower()
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 class RegistrationRequest(BaseModel):
-    email: LowerEmailStr
+    email: EmailStr
     password: str
 
     @field_validator('password', mode='after')
