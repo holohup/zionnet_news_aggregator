@@ -39,7 +39,7 @@ logging_config = {
         'default': {'class': 'logging.StreamHandler', 'formatter': 'default', 'level': 'INFO'},
         'file': {
             'class': 'logging.FileHandler',
-            'filename': 'log/user_manager.log',
+            'filename': 'log/api_gateway.log',
             'mode': 'a',
             'level': 'DEBUG',
             'formatter': 'default',
