@@ -4,6 +4,8 @@ endpoints = {
     'delete': '/delete'
 }
 
+logs_to_check = ('logs/db_accessor.log', 'logs/api_gateway.log', 'logs/user_manager.log')
+
 
 def endpoint_url(name: str, email: str = None) -> str:
     """Provide endpoints for tests."""

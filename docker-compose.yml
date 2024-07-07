@@ -28,6 +28,7 @@ services:
     ]
     volumes:
       - "./components/:/components"
+      - ./secrets.json:/secrets.json
     depends_on:
       - api_gateway
     network_mode: "service:api_gateway"
@@ -59,6 +60,7 @@ services:
     ]
     volumes:
       - "./components/:/components"
+      - ./secrets.json:/secrets.json
     depends_on:
       - db_accessor
     network_mode: "service:db_accessor"
@@ -89,6 +91,7 @@ services:
     ]
     volumes:
       - "./components/:/components"
+      - ./secrets.json:/secrets.json
     depends_on:
       - user_manager
     network_mode: "service:user_manager"
