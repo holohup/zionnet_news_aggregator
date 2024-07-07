@@ -40,6 +40,7 @@ class RedisUserRepository(UserRepository):
         email = dct.pop('email')
         user = User(**dct)
         self._r.set(self._prefix+email.lower(), user.jsons)
+        return self.get_user(email)
 
     def delete_user(self, user_email: str):
         self._r.delete(self._prefix+user_email.lower())

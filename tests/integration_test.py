@@ -46,6 +46,7 @@ def test_Given_registered_user_When_getting_his_info_Then_registration_data_fiel
     response_dict = dict(json.loads(response.text))
     user_dict = dict(json.loads(test_user_data))
     user_dict.pop('email')
+    user_dict.pop('password')
     for k, v in user_dict.items():
         assert response_dict['detail'][k] == v
 

@@ -1,5 +1,6 @@
 # gRPC calls to DB Accessor
 
+import json
 import logging
 
 
@@ -27,7 +28,7 @@ class DB_Accessor:
             logger.error(str(e))
             return self._server_error_dict
         result = response.text()
-        logger.info(f'Received response from DB Accessor: {response}')
+        logger.info(f'Received response from DB Accessor: {result}')
         return result
 
     def delete_user(self, email: str):
@@ -41,7 +42,7 @@ class DB_Accessor:
             logger.error(str(e))
             return self._server_error_dict
         result = response.text()
-        logger.info(f'Received response from DB Accessor: {response}')
+        logger.info(f'Received response from DB Accessor: {result}')
         return result
 
     def get_user_info(self, email: str):
@@ -55,7 +56,7 @@ class DB_Accessor:
             logger.error(str(e))
             return self._server_error_dict
         result = response.text()
-        logger.info(f'Received response from DB Accessor: {response}')
+        logger.info(f'Received response from DB Accessor: {result}')
         return result
 
     @property
