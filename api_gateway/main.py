@@ -19,7 +19,7 @@ app = FastAPI()
 u_manager = UserManager(config.grpc.user_manager_app_id)
 
 
-@app.post('/register')
+@app.post('/user/register')
 async def register_new_user(request: RegistrationRequest):
     """User registration. After validation send a request to UserManager."""
 
@@ -29,13 +29,23 @@ async def register_new_user(request: RegistrationRequest):
     return JSONResponse(content=result, status_code=status_code)
 
 
-@app.delete('/delete/{user_email}', status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
+@app.delete('/user/delete/{user_email}', status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
 async def delete_user(user_email: str):
     """User deletion chain starting point."""
 
     logger.info(f'Deleting user: {user_email}')
     await u_manager.delete_user(user_email)
     return None
+
+
+@app.get('/user/info/{user_email}')
+async def get_user_info(user_email: str):
+    """Get user info."""
+
+    result = await u_manager.get_user(user_email)
+    status_code = result.pop('status_code')
+    return JSONResponse(content=result, status_code=status_code)
+
 
 if __name__ == '__main__':
     logger.info('Starting API Gateway')

@@ -1,9 +1,9 @@
-import json
 from abc import ABC, abstractmethod
 
+from pydantic_core import from_json
 from redis import Redis
 
-from schema import User
+from schema import User, UserWithEmail
 
 
 class UserRepository(ABC):
@@ -20,6 +20,10 @@ class UserRepository(ABC):
     def delete_user(self, user_email: str):
         pass
 
+    @abstractmethod
+    def get_user(self, email: str):
+        pass
+
 
 class RedisUserRepository(UserRepository):
     """A layer between the database and main to incapsulate the details."""
@@ -31,13 +35,17 @@ class RedisUserRepository(UserRepository):
     def user_exists(self, email: str) -> bool:
         return self._r.exists(self._prefix + email.lower())
 
-    def create_user(self, user: User):
-        dct = user._asdict()
+    def create_user(self, user_with_email: UserWithEmail):
+        dct = dict(user_with_email)
         email = dct.pop('email')
-        self._r.set(self._prefix+email.lower(), json.dumps(dct))
+        user = User(**dct)
+        self._r.set(self._prefix+email.lower(), user.jsons)
 
     def delete_user(self, user_email: str):
         self._r.delete(self._prefix+user_email.lower())
+
+    def get_user(self, email: str):
+        return User(**from_json(self._r.get(self._prefix+email.lower())))
 
     # def store(self, k: str, v: str):
     #     self._r.set(k, json.dumps(v))
