@@ -8,9 +8,16 @@ class BaseModelWithJSONString(BaseModel):
         return self.model_dump_json()
 
 
+class UserSettings(BaseModelWithJSONString):
+    is_admin: bool = False
+    max_sentences: int = 5
+    max_news: int = 10
+    interests: list[str] = []
+
+
 class User(BaseModelWithJSONString):
     password: str
-    settings: dict = {}
+    settings: UserSettings = UserSettings()
 
 
 class UserWithEmail(User):
