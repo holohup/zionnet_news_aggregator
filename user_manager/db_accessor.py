@@ -20,43 +20,43 @@ class DB_Accessor:
         logger.info('Registering user.')
         try:
             with DaprClient() as client:
-                result: InvokeMethodResponse = client.invoke_method(
+                response: InvokeMethodResponse = client.invoke_method(
                     self._app_id, 'create_user', user_data
                 )
         except DaprInternalError as e:
             logger.error(str(e))
             return self._server_error_dict
-        response = result.text()
+        result = response.text()
         logger.info(f'Received response from DB Accessor: {response}')
-        return response
+        return result
 
     def delete_user(self, email: str):
         logger.info(f'Deleting user {email}.')
         try:
             with DaprClient() as client:
-                result: InvokeMethodResponse = client.invoke_method(
+                response: InvokeMethodResponse = client.invoke_method(
                     self._app_id, 'delete_user', email
                 )
         except DaprInternalError as e:
             logger.error(str(e))
             return self._server_error_dict
-        response = result.text()
+        result = response.text()
         logger.info(f'Received response from DB Accessor: {response}')
-        return response
+        return result
 
     def get_user_info(self, email: str):
         logger.info(f'Getting user info for {email}')
         try:
             with DaprClient() as client:
-                result: InvokeMethodResponse = client.invoke_method(
+                response: InvokeMethodResponse = client.invoke_method(
                     self._app_id, 'get_user_info', email
                 )
         except DaprInternalError as e:
             logger.error(str(e))
             return self._server_error_dict
-        response = result.text()
+        result = response.text()
         logger.info(f'Received response from DB Accessor: {response}')
-        return response
+        return result
 
     @property
     def _server_error_dict(self):
