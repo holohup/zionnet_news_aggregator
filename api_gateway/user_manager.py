@@ -51,6 +51,24 @@ class UserManager:
             raise HTTPException(status_code=response['status_code'], detail=response['detail'])
         logger.info('Deleted successfully.')
 
+    async def get_user(self, email: str):
+        logger.info(f'Getting user info for {email}.')
+        try:
+            async with DaprClient() as client:
+                result: InvokeMethodResponse = await client.invoke_method(
+                    self._app_id, 'get_user', email
+                )
+        except DaprInternalError as e:
+            logger.error(str(e))
+            return self._server_error_dict
+        response = json.loads(result.text())
+        logger.info(f'Received response from UserManager: {response=}')
+        if response['result'] == 'error':
+            logger.error(f'Error: {response["detail"]}')
+            raise HTTPException(status_code=response['status_code'], detail=response['detail'])
+        logger.info(f'Fetched successfully: {response}.')
+        return self._response_to_dict(response)
+
     def _response_to_dict(self, response):
         return {s: response[s] for s in ('result', 'status_code', 'detail')}
 

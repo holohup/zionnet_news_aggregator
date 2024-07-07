@@ -19,20 +19,29 @@ db_accessor = DB_Accessor(config.grpc.db_accessor_app_id)
 
 @app.method(name='register_user')
 def register_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
-    data = json.loads(request.text())
-    logger.info(f'Received registration request for {data["email"]}')
-    result = db_accessor.create_user(request.text())
+    data = request.text()
+    logger.info(f'Received registration request for {json.loads(data)["email"]}')
+    result = db_accessor.create_user(data)
     logger.info(f'Sending result {result}')
-    return InvokeMethodResponse(data=json.dumps(result))
+    return InvokeMethodResponse(data=result)
 
 
 @app.method(name='delete_user')
 def delete_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
-    data = request.text()
-    logger.info(f'Received deletion request for {data}')
-    result = db_accessor.delete_user(data)
+    email = request.text()
+    logger.info(f'Received deletion request for {email}')
+    result = db_accessor.delete_user(email)
     logger.info(f'Sending result {result}')
-    return InvokeMethodResponse(data=json.dumps(result))
+    return InvokeMethodResponse(data=result)
+
+
+@app.method(name='get_user')
+def get_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    email = request.text()
+    logger.info(f'Getting user info for {email}')
+    result = db_accessor.get_user_info(email)
+    logger.info(f'Sending result {result}')
+    return InvokeMethodResponse(data=result)
 
 
 if __name__ == '__main__':

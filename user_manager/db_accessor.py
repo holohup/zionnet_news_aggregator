@@ -1,6 +1,5 @@
 # gRPC calls to DB Accessor
 
-import json
 import logging
 
 
@@ -27,26 +26,37 @@ class DB_Accessor:
         except DaprInternalError as e:
             logger.error(str(e))
             return self._server_error_dict
-        response = json.loads(result.text())
-        logger.info(f'Received response from DB Accessor: {response=}')
-        return self._response_to_dict(response)
+        response = result.text()
+        logger.info(f'Received response from DB Accessor: {response}')
+        return response
 
-    def delete_user(self, user_data: str):
-        logger.info('Deleting user.')
+    def delete_user(self, email: str):
+        logger.info(f'Deleting user {email}.')
         try:
             with DaprClient() as client:
                 result: InvokeMethodResponse = client.invoke_method(
-                    self._app_id, 'delete_user', user_data
+                    self._app_id, 'delete_user', email
                 )
         except DaprInternalError as e:
             logger.error(str(e))
             return self._server_error_dict
-        response = json.loads(result.text())
-        logger.info(f'Received response from DB Accessor: {response=}')
-        return self._response_to_dict(response)
+        response = result.text()
+        logger.info(f'Received response from DB Accessor: {response}')
+        return response
 
-    def _response_to_dict(self, response):
-        return {s: response[s] for s in ('result', 'status_code', 'detail')}
+    def get_user_info(self, email: str):
+        logger.info(f'Getting user info for {email}')
+        try:
+            with DaprClient() as client:
+                result: InvokeMethodResponse = client.invoke_method(
+                    self._app_id, 'get_user_info', email
+                )
+        except DaprInternalError as e:
+            logger.error(str(e))
+            return self._server_error_dict
+        response = result.text()
+        logger.info(f'Received response from DB Accessor: {response}')
+        return response
 
     @property
     def _server_error_dict(self):
