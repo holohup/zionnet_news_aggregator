@@ -27,7 +27,7 @@ services:
       "--resources-path", "./components"
     ]
     volumes:
-      - "./components/:/components"
+      - ./components/:/components
       - ./secrets.json:/secrets.json
     depends_on:
       - api_gateway
@@ -59,7 +59,7 @@ services:
       "--resources-path", "./components"
     ]
     volumes:
-      - "./components/:/components"
+      - ./components/:/components
       - ./secrets.json:/secrets.json
     depends_on:
       - db_accessor
@@ -90,7 +90,7 @@ services:
       "--resources-path", "./components"
     ]
     volumes:
-      - "./components/:/components"
+      - ./components/:/components
       - ./secrets.json:/secrets.json
     depends_on:
       - user_manager
