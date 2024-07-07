@@ -29,18 +29,18 @@ app = App()
 
 @app.method(name='create_user')
 def create_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
-    user = UserWithEmail(**from_json(request.text()))
-    logger.info(f'Received user creation request {user}')
+    user_with_email = UserWithEmail(**from_json(request.text()))
+    logger.info(f'Received user creation request {user_with_email}')
     try:
-        if repo.user_exists(user.email):
+        if repo.user_exists(user_with_email.email):
             logger.warning('User already exists')
             return InvokeMethodResponse(data=exists_response)
-        repo.create_user(user)
+        repo.create_user(user_with_email)
     except ConnectionError as e:
         result = exception_response(str(e))
         logger.error(f'Exception: {str(e)}')
     else:
-        result = created_response(user)
+        result = created_response(user_with_email)
         logger.info('User created')
     return InvokeMethodResponse(data=result)
 
