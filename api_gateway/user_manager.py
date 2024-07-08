@@ -16,62 +16,53 @@ class UserManager:
     def __init__(self, app_id) -> None:
         self._app_id = app_id
 
-    async def register_user(self, user_data: str):
+    async def register_user(self, user_data: str) -> dict:
         logger.info('Registering user.')
-        try:
-            async with DaprClient() as client:
-                result: InvokeMethodResponse = await client.invoke_method(
-                    self._app_id, 'register_user', user_data
-                )
-        except DaprInternalError as e:
-            logger.error(str(e))
-            return self._server_error_dict
-        response = json.loads(result.text())
-        logger.info(f'Received response from UserManager: {response=}')
-        if response['result'] == 'error':
-            logger.error(f'Error: {response["detail"]}')
-            raise HTTPException(status_code=response['status_code'], detail=response['detail'])
-        logger.info('Created successfully.')
-        return self._response_to_dict(response)
+        result = await self._invoke_user_manager_method('register_user', user_data)
+        logger.info(f'Created successfully. {result=}')
+        return result
 
-    async def delete_user(self, email: str):
+    async def delete_user(self, email: str) -> dict:
         logger.info(f'Deleting user {email}.')
-        try:
-            async with DaprClient() as client:
-                result: InvokeMethodResponse = await client.invoke_method(
-                    self._app_id, 'delete_user', email
-                )
-        except DaprInternalError as e:
-            logger.error(str(e))
-            return self._server_error_dict
-        response = json.loads(result.text())
-        logger.info(f'Received response from UserManager: {response=}')
-        if response['result'] == 'error':
-            logger.error(f'Error: {response["detail"]}')
-            raise HTTPException(status_code=response['status_code'], detail=response['detail'])
+        await self._invoke_user_manager_method('delete_user', email)
         logger.info('Deleted successfully.')
 
-    async def get_user(self, email: str):
+    async def get_user(self, email: str) -> dict:
         logger.info(f'Getting user info for {email}.')
+        result = await self._invoke_user_manager_method('get_user', email)
+        logger.info(f'Fetched successfully: {result}.')
+        return result
+
+    async def create_token(self, email, password) -> dict:
+        logger.info(f'Creating token for {email}')
+        result = await self._invoke_user_manager_method(
+            'create_token', json.dumps({'email': email, 'password': password})
+        )
+        logger.info('Received token.')
+        token = result['detail']
+        return token
+
+    async def _invoke_user_manager_method(self, method: str, data) -> dict:
         try:
             async with DaprClient() as client:
-                result: InvokeMethodResponse = await client.invoke_method(
-                    self._app_id, 'get_user', email
+                response: InvokeMethodResponse = await client.invoke_method(
+                    self._app_id, method, data
                 )
         except DaprInternalError as e:
             logger.error(str(e))
             return self._server_error_dict
-        response = json.loads(result.text())
-        logger.info(f'Received response from UserManager: {response=}')
-        if response['result'] == 'error':
-            logger.error(f'Error: {response["detail"]}')
-            raise HTTPException(status_code=response['status_code'], detail=response['detail'])
-        logger.info(f'Fetched successfully: {response}.')
-        return self._response_to_dict(response)
-
-    def _response_to_dict(self, response):
-        return {s: response[s] for s in ('result', 'status_code', 'detail')}
+        result = json.loads(response.text())
+        if result['result'] == 'error':
+            logger.error(f'Error: {result["detail"]}')
+            raise HTTPException(
+                status_code=result['status_code'], detail=result['detail']
+            )
+        return result
 
     @property
     def _server_error_dict(self):
-        return {'result': 'error', 'status_code': 500, 'detail': 'Internal server error, check API Gateway logs'}
+        return {
+            'result': 'error',
+            'status_code': 500,
+            'detail': 'Internal server error, check API Gateway logs',
+        }

@@ -77,7 +77,7 @@ def get_user_info(request: InvokeMethodRequest) -> InvokeMethodResponse:
         logger.error(f'Exception: {str(e)}')
     else:
         result = user_info_response(user)
-        logger.info(f'User data fetched: {result}')
+        logger.info('User data fetched, returning it.')
     return InvokeMethodResponse(data=result)
 
 
