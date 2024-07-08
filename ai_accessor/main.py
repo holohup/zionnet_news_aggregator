@@ -56,8 +56,5 @@ if __name__ == "__main__":
         logger.error(f'Could not connect to the secrets store. Terminating. {str(e)}')
         raise
     asyncio.run(main())
-# If running from a jupyter-notebook:
-# await main()
-
 
 # semantic_kernel.exceptions.kernel_exceptions.KernelInvokeException, ServiceResponseException, openai.RateLimitError

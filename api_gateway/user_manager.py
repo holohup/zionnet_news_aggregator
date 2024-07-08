@@ -1,18 +1,24 @@
+from datetime import datetime
 import json
 from typing import Annotated
 import logging
 
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
 import jwt
+from pydantic import ValidationError
 
-from exceptions import server_error_dict, credentials_exception, http_exception
-from schema import Token
+from exceptions import server_error_dict, credentials_exception, http_exception, token_expired_exception
+from schema import Token, TokenPayload, User
 
 from dapr.aio.clients import DaprClient
 from dapr.clients.grpc._response import InvokeMethodResponse
 from dapr.clients.exceptions import DaprInternalError
 
+
 logger = logging.getLogger(__name__)
+
+reuseable_oauth = OAuth2PasswordBearer(tokenUrl='/login', scheme_name='JWT')
 
 
 class UserManager:
@@ -48,22 +54,28 @@ class UserManager:
         token = result['detail']
         return token
 
-    async def get_current_user(self, token: Annotated[str, Depends(Token)]):
-
+    async def get_current_user(self, access_token: str = Depends(reuseable_oauth)):
         logger.info('Getting credentials')
         try:
             payload = jwt.decode(
-                token.access_token,
+                access_token,
                 self._token_config.secret_key,
                 algorithms=[self._token_config.algorithm],
             )
             logger.info(f'Received payload: {payload}')
-            email: str = payload.get('email')
-        except jwt.InvalidTokenError:
+            token_data = TokenPayload(**payload)
+        except (ValidationError, jwt.PyJWTError):
+            logger.info('Token not valid')
             raise credentials_exception
-        response = await self.get_user(email=email)
+        logger.warning(f'{token_data=}')
+        logger.warning(datetime.fromtimestamp(token_data.exp))
+        logger.warning(datetime.now())
+        if datetime.fromtimestamp(token_data.exp) < datetime.now():
+            logger.info(f'Token expired. {token_data.exp}, {type(token_data.exp)}')
+            raise token_expired_exception
+        response = await self.get_user(email=token_data.email)
         user = response['detail']
-        return {'email': email, 'is_admin': user['is_admin']}
+        return User(email=token_data.email, is_admin=user['is_admin'])
 
     async def _invoke_user_manager_method(self, method: str, data) -> dict:
         try:

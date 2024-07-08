@@ -42,6 +42,7 @@ class RedisUserRepository(UserRepository):
     def create_user(self, user_with_email: UserWithEmail):
         dct = dict(user_with_email)
         email = dct.pop('email').lower()
+        logger.warning(self._admins)
         if email in self._admins:
             logger.warning(f'Creating an admin account for {email}')
             dct.update({'is_admin': True})

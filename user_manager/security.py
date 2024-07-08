@@ -4,7 +4,6 @@ import logging
 
 import jwt
 from passlib.context import CryptContext
-# from jwt.exceptions import InvalidTokenError
 
 
 logger = logging.getLogger(__name__)
@@ -26,14 +25,6 @@ def verify_password(plain_password, hashed_password):
 
 def generate_hash(password):
     return pwd_context.hash(password)
-
-
-# def authenticate_user(user_info: str, password: str):
-#     if not user_info:
-#         return False
-#     if not verify_password(password, user.hashed_password):
-#         return False
-#     return user
 
 
 def create_access_token(data: dict, config):

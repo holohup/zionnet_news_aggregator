@@ -46,11 +46,7 @@ def get_admins(store_name: str):
     with DaprClient() as client:
         key = 'ADMIN_EMAILS'
         admins_str = client.get_secret(store_name=store_name, key=key).secret[key]
-    result = admins_str.split(',')
-    valid_emails = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-    for admin_email in result:
-        if not re.fullmatch(valid_emails, admin_email):
-            raise ValueError(f'Not a valid admin e-mail: {admin_email}')
+    result = [admin_email.strip() for admin_email in admins_str.split(',')]
     return result
 
 

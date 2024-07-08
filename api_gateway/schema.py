@@ -30,3 +30,7 @@ class TokenRequest(RegistrationRequest):
 class User(BaseModel):
     email: str
     is_admin: bool
+
+
+class TokenPayload(User):
+    exp: float
