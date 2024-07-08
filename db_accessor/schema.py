@@ -1,3 +1,4 @@
+import datetime
 from pydantic import BaseModel
 
 
@@ -9,7 +10,6 @@ class BaseModelWithJSONString(BaseModel):
 
 
 class UserSettings(BaseModelWithJSONString):
-    is_admin: bool = False
     max_sentences: int = 5
     max_news: int = 10
     interests: list[str] = []
@@ -17,6 +17,9 @@ class UserSettings(BaseModelWithJSONString):
 
 class User(BaseModelWithJSONString):
     password: str
+    is_admin: bool = False
+    contact_info: str = ''
+    latest_news_processed: str = ''
     settings: UserSettings = UserSettings()
 
 

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from dapr.clients import DaprClient
 
 @dataclass
 class LoggingConfig:
@@ -12,16 +13,37 @@ class GRPCConfig:
 
 
 @dataclass
+class JTWConfig:
+    algorithm: str
+    secret_key: str
+    token_type: str
+
+
+@dataclass
 class Config:
     logging: LoggingConfig
     grpc: GRPCConfig
+    jwt: JTWConfig
 
 
 def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
-        grpc=GRPCConfig(user_manager_app_id='user_manager')
+        grpc=GRPCConfig(user_manager_app_id='user_manager'),
+        jwt=configure_token(store_name='localsecretstore')
     )
+
+
+def configure_token(store_name: str):
+    def secret(client, secret_name):
+        return client.get_secret(store_name=store_name, key=secret_name).secret[secret_name]
+    with DaprClient() as client:
+        token_config = JTWConfig(
+            algorithm=secret(client, 'JWT_TOKEN_ENCRYPTION_ALGORITHM'),
+            secret_key=secret(client, 'JWT_TOKEN_SECRET_KEY'),
+            token_type=secret(client, 'JWT_TOKEN_TYPE')
+        )
+    return token_config
 
 
 # log info messages to stdout and file everything from debug

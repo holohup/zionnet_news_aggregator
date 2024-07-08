@@ -11,3 +11,26 @@ class RegistrationRequest(BaseModel):
         if not password:
             raise ValueError('Password can not be empy')
         return password
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str
+    is_admin: bool
+
+
+class TokenRequest(RegistrationRequest):
+    pass
+
+
+class User(BaseModel):
+    email: str
+    is_admin: bool
+
+
+class TokenPayload(User):
+    exp: float

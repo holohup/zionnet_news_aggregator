@@ -1,14 +1,19 @@
 # The API gateway provides REST API for the service - it validates the requests, performs authorization and
 # authentification, and makes sure the validated requests are forwarded to the right Managers
 
-from fastapi import FastAPI, status
+from typing import Annotated
+
+from fastapi import FastAPI, status, Depends
 from fastapi.responses import JSONResponse, Response
+
 import logging.config
 import logging
 
-from schema import RegistrationRequest
+from exceptions import admin_only_exception
+from schema import RegistrationRequest, Token, TokenRequest, User
 from utils import obfuscate_password
 from config import load_config
+from oauth_email import PasswordRequestForm
 from user_manager import UserManager
 
 config = load_config()
@@ -16,35 +21,78 @@ logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-u_manager = UserManager(config.grpc.user_manager_app_id)
+u_manager = UserManager(app_id=config.grpc.user_manager_app_id, token_config=config.jwt)
+
 
 
 @app.post('/user/register')
 async def register_new_user(request: RegistrationRequest):
     """User registration. After validation send a request to UserManager."""
 
-    logger.info(f'Registering user: {request.email} {obfuscate_password(request.password)}')
+    logger.info(
+        f'Registering user: {request.email} {obfuscate_password(request.password)}'
+    )
     result = await u_manager.register_user(request.model_dump_json())
     status_code = result.pop('status_code')
     return JSONResponse(content=result, status_code=status_code)
 
 
-@app.delete('/user/delete/{user_email}', status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
-async def delete_user(user_email: str):
+@app.delete(
+    '/user/delete/{user_email}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+)
+async def delete_user(current_user: Annotated[User, Depends(u_manager.get_current_user)], user_email: str):
     """User deletion chain starting point."""
 
     logger.info(f'Deleting user: {user_email}')
+    if not current_user.is_admin:
+        logger.info('Not an admin request, skipping')
+        raise admin_only_exception
     await u_manager.delete_user(user_email)
     return None
 
 
 @app.get('/user/info/{user_email}')
-async def get_user_info(user_email: str):
+async def get_user_info(current_user: Annotated[User, Depends(u_manager.get_current_user)], user_email: str):
     """Get user info."""
 
+    logger.info(f'Getting user info for {user_email}')
+    if not current_user.is_admin:
+        logger.info('Access to see user data denied due to lack of privileges')
+        raise admin_only_exception
     result = await u_manager.get_user(user_email)
     status_code = result.pop('status_code')
     return JSONResponse(content=result, status_code=status_code)
+
+
+@app.post('/login', summary='Special endpoint for Swagger integration', response_model=Token)
+async def generate_token(req_data: PasswordRequestForm = Depends()) -> Token:
+    """Create a token for Swagger UI"""
+
+    email, password = req_data.email, req_data.password
+    logger.info(f'Creating a token for {email}, {obfuscate_password(password)}')
+    result = await u_manager.create_token(email, password)
+    logger.info('Returning token')
+    return result
+
+
+@app.post('/token', summary='Token generation endpoint', response_model=Token)
+async def create_token(request: TokenRequest):
+    """Create a token given valid email and password, or return an error."""
+    email, password = request.email, request.password
+    logger.info(f'Creating a token for {email}, {obfuscate_password(password)}')
+    result = await u_manager.create_token(email, password)
+    logger.info('Returning token')
+    return result
+
+
+@app.get('/user/me/', response_model=User)
+async def read_users_me(
+    current_user: Annotated[dict, Depends(u_manager.get_current_user)],
+) -> User:
+    logger.info('Servicing a get current user request.')
+    return current_user
 
 
 if __name__ == '__main__':

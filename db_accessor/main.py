@@ -22,7 +22,7 @@ config = load_config()
 logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
 r = redis.Redis(config.redis.host, config.redis.port, decode_responses=True)
-repo = RedisUserRepository(redis=r, prefix=config.storage.email_prefix)
+repo = RedisUserRepository(redis=r, prefix=config.storage.email_prefix, admins=config.admins.admin_emails)
 
 app = App()
 
@@ -30,7 +30,7 @@ app = App()
 @app.method(name='create_user')
 def create_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
     user_with_email = UserWithEmail(**from_json(request.text()))
-    logger.info(f'Received user creation request {user_with_email}')
+    logger.info(f'Received user creation request {user_with_email.email}')
     try:
         if repo.user_exists(user_with_email.email):
             logger.warning('User already exists')
@@ -77,7 +77,7 @@ def get_user_info(request: InvokeMethodRequest) -> InvokeMethodResponse:
         logger.error(f'Exception: {str(e)}')
     else:
         result = user_info_response(user)
-        logger.info(f'User data fetched: {result}')
+        logger.info('User data fetched, returning it.')
     return InvokeMethodResponse(data=result)
 
 
