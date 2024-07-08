@@ -41,5 +41,5 @@ def create_access_token(data: dict, config):
     expire = datetime.now(timezone.utc) + config.expire_minutes
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, config.secret_key, algorithm=config.algorithm)
-    logger.info(f'Token created good for {config.expire_minutes} minutes.')
+    logger.info(f'Token created good for {config.expire_minutes}.')
     return encoded_jwt

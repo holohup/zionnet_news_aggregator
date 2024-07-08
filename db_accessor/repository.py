@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
+import logging
 
 from pydantic_core import from_json
 from redis import Redis
 
 from schema import User, UserWithEmail
+
+logger = logging.getLogger(__name__)
 
 
 class UserRepository(ABC):
@@ -28,16 +31,20 @@ class UserRepository(ABC):
 class RedisUserRepository(UserRepository):
     """A layer between the database and main to incapsulate the details."""
 
-    def __init__(self, redis, prefix) -> None:
+    def __init__(self, redis, prefix, admins: list[str]) -> None:
         self._r: Redis = redis
         self._prefix: str = prefix
+        self._admins = admins
 
     def user_exists(self, email: str) -> bool:
         return self._r.exists(self._prefix + email.lower())
 
     def create_user(self, user_with_email: UserWithEmail):
         dct = dict(user_with_email)
-        email = dct.pop('email')
+        email = dct.pop('email').lower()
+        if email in self._admins:
+            logger.warning(f'Creating an admin account for {email}')
+            dct.update({'is_admin': True})
         user = User(**dct)
         self._r.set(self._prefix+email.lower(), user.jsons)
         return self.get_user(email)

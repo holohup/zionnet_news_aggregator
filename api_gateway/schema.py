@@ -20,7 +20,13 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str
+    is_admin: bool
 
 
 class TokenRequest(RegistrationRequest):
     pass
+
+
+class User(BaseModel):
+    email: str
+    is_admin: bool

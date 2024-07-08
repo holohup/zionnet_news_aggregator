@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, Response
 import logging.config
 import logging
 
-from schema import RegistrationRequest, Token, TokenRequest
+from schema import RegistrationRequest, Token, TokenRequest, User
 from utils import obfuscate_password
 from config import load_config
 from user_manager import UserManager
@@ -18,7 +18,7 @@ logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-u_manager = UserManager(config.grpc.user_manager_app_id)
+u_manager = UserManager(app_id=config.grpc.user_manager_app_id, token_config=config.jwt)
 
 
 @app.post('/user/register')
@@ -64,11 +64,20 @@ async def create_token(req_data: Annotated[TokenRequest, Depends()]) -> Token:
     logger.info(f'Creating a token for {email}, {obfuscate_password(password)}')
     result = await u_manager.create_token(email, password)
     logger.info('Returning token')
-    return result
+    return Token(**result)
+
+
+
+
+@app.get('/user/me/', response_model=User)
+async def read_users_me(
+    current_user: Annotated[User, Depends(u_manager.get_current_user)],
+):
+    logger.info('Servicing a get current user request.')
+    return current_user
 
 
 if __name__ == '__main__':
     logger.info('Starting API Gateway')
     import uvicorn
-
     uvicorn.run(app=app, host='0.0.0.0', port=8000)

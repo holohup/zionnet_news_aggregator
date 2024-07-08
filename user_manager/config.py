@@ -16,7 +16,7 @@ class GRPCConfig:
 @dataclass
 class JWTTokenConfig:
     algorithm: str
-    expire_minutes: int
+    expire_minutes: timedelta
     secret_key: str
     token_type: str
 
@@ -43,7 +43,7 @@ def configure_token(store_name: str):
         token_config = JWTTokenConfig(
             algorithm=secret(client, 'JWT_TOKEN_ENCRYPTION_ALGORITHM'),
             secret_key=secret(client, 'JWT_TOKEN_SECRET_KEY'),
-            expire_minutes=timedelta(int(secret(client, 'JWT_TOKEN_EXPIRATION_MINUTES'))),
+            expire_minutes=timedelta(minutes=int(secret(client, 'JWT_TOKEN_EXPIRATION_MINUTES'))),
             token_type=secret(client, 'JWT_TOKEN_TYPE')
         )
     return token_config

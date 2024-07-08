@@ -40,7 +40,7 @@ def get_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
     email = request.text()
     logger.info(f'Getting user info for {email}')
     result = db_accessor.get_user(email)
-    logger.info(f'Sending result {result}')
+    logger.info('Sending result')
     return InvokeMethodResponse(data=result)
 
 

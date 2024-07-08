@@ -1,5 +1,8 @@
 import os
+import re
 from dataclasses import dataclass
+from dapr.clients import DaprClient
+
 
 DEBUG = str(os.getenv('DEBUG', False)).lower() in ('true', 'yes', '1', 'on')
 
@@ -21,6 +24,11 @@ class LoggingConfig:
 
 
 @dataclass
+class AdminsConfig:
+    admin_emails: list[str]
+
+
+@dataclass
 class GRPCSettings:
     port: int
 
@@ -31,6 +39,19 @@ class Config:
     logging: LoggingConfig
     storage: StorageSettings
     grpc: GRPCSettings
+    admins: AdminsConfig
+
+
+def get_admins(store_name: str):
+    with DaprClient() as client:
+        key = 'ADMIN_EMAILS'
+        admins_str = client.get_secret(store_name=store_name, key=key).secret[key]
+    result = admins_str.split(',')
+    valid_emails = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    for admin_email in result:
+        if not re.fullmatch(valid_emails, admin_email):
+            raise ValueError(f'Not a valid admin e-mail: {admin_email}')
+    return result
 
 
 def load_config():
@@ -38,7 +59,8 @@ def load_config():
         logging=LoggingConfig(logging_config),
         redis=RedisSettings(host='localhost' if DEBUG else 'redis', port=6379),
         storage=StorageSettings(email_prefix='EMAIL:'),
-        grpc=GRPCSettings(port=50052 if DEBUG else 50051)
+        grpc=GRPCSettings(port=50052 if DEBUG else 50051),
+        admins=AdminsConfig(admin_emails=get_admins('localsecretstore'))
     )
 
 
