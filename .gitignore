@@ -163,3 +163,5 @@ cython_debug/
 
 redis/
 secrets.json
+news.json
+latest_update.json
