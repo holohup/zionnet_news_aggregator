@@ -12,6 +12,8 @@ class UserSettings(BaseModelWithJSONString):
     max_sentences: int = 5
     max_news: int = 10
     interests: list[str] = []
+    info: str = ''
+    tags: str = ''
 
 
 class User(BaseModelWithJSONString):

@@ -16,3 +16,4 @@ the solution utilizes http, which is not secure
 
 every service has an access to secrets, they use only what is needed, but potentially could request secrets that do not concern them
 
+!NB att to promt if there're duplicates in summary+title, choose the most interesting id

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from dapr.clients import DaprClient
 import os
+from datetime import timedelta
 
 
 DEBUG = str(os.getenv('DEBUG', False)).lower() in ('true', 'yes', '1', 'debug')
@@ -20,18 +21,14 @@ class FilenamesConfig:
 @dataclass
 class ParsingConfig:
     max_entries: int
-
-
-@dataclass
-class ApiKey:
-    key: str
+    news_expiration_hours: timedelta
+    api_key: str
 
 
 @dataclass
 class Config:
     logging: LoggingConfig
     filenames: FilenamesConfig
-    api_key: ApiKey
     parsing: ParsingConfig
 
 
@@ -42,12 +39,12 @@ def get_api_key(store_name: str, var: str):
 
 
 def load_config():
-    news_api_key = 'WORLD_NEWS_API_KEY'
+    news_api_key_var = 'WORLD_NEWS_API_KEY'
+    api_key = get_api_key('localsecretstore', news_api_key_var) if not DEBUG else os.getenv(news_api_key_var)
     return Config(
         logging=LoggingConfig(logging_config),
-        filenames=FilenamesConfig(latest_update_filename='latest_update.json', news_filename='news.json'),
-        api_key=ApiKey(api_key=get_api_key('localsecretstore', news_api_key)) if not DEBUG else os.getenv(news_api_key),
-        parsing=ParsingConfig(max_entries=100)
+        filenames=FilenamesConfig(latest_update_filename='news/latest_update.json', news_filename='news/news.json'),
+        parsing=ParsingConfig(max_entries=100, news_expiration_hours=timedelta(hours=24), api_key=api_key)
     )
 
 
