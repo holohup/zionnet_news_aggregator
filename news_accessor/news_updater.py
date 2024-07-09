@@ -47,7 +47,7 @@ class NewsUpdater:
                 return
             result = response.news
             available, news_in_page = response.available, parse_news_config['number']
-            logger.info(f'Available news {available=}')
+            logger.info(f'Available news {available}')
             if available > news_in_page:
                 for page in range(1, available // news_in_page + 1):
                     parse_news_config.update({'offset': page * news_in_page})
