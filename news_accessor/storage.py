@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import logging
 import json
 from datetime import datetime, timedelta, UTC
@@ -7,7 +8,25 @@ from config import FilenamesConfig
 logger = logging.getLogger(__name__)
 
 
-class FileStorage:
+class Storage(ABC):
+    @abstractmethod
+    def delete_old_entries(self, news_expiration_hours: timedelta):
+        pass
+
+    @abstractmethod
+    def save_news(self, final_data, latest_news_date):
+        pass
+
+    @abstractmethod
+    def get_latest_entry_time(self, format: str = ''):
+        pass
+
+    @abstractmethod
+    def get_all_news_after_datetime(self, dt: datetime):
+        pass
+
+
+class FileStorage(Storage):
     def __init__(self, filename_config: FilenamesConfig):
         self._config = filename_config
 
@@ -36,7 +55,7 @@ class FileStorage:
             json.dump(filtered_entries, file, indent=4, default=str)
             file.write('\n')
 
-    def save_files(self, final_data, latest_news_date):
+    def save_news(self, final_data, latest_news_date):
         logger.info(f'Saving news files. {len(final_data)=}, {latest_news_date=}')
         if not final_data:
             logger.info('No new news, not messing with files')
@@ -59,9 +78,13 @@ class FileStorage:
         logger.info('Files saved')
 
     def get_latest_entry_time(self, format: str = ''):
-        with open(self._config.latest_update_filename, 'r') as file:
-            result = json.load(file)
-        publish_date = self._dt_from_pd(result['latest_entry'])
+        if not os.path.exists(self._config.latest_update_filename):
+            offset = datetime.now(UTC) - timedelta(hours=1)
+            publish_date = offset.replace(tzinfo=None)
+        else:
+            with open(self._config.latest_update_filename, 'r') as file:
+                result = json.load(file)
+            publish_date = self._dt_from_pd(result['latest_entry'])
         new_publish_date = publish_date + timedelta(seconds=1)
         if format == 'datetime':
             return new_publish_date

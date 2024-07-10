@@ -60,6 +60,23 @@ def get_password_hash(request: InvokeMethodRequest) -> InvokeMethodResponse:
     return invoke_method(email, 'get_password_hash', email, hash_response)
 
 
+@app.method(name='get_user_tags')
+def get_all_user_tags(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    logger.info('Preparing tags')
+    try:
+        resp = repo.get_all_user_tags()
+    except ConnectionError as e:
+        resp = exception_response(str(e))
+        logger.exception(f'Exception: {str(e)}')
+    return InvokeMethodResponse(data=resp)
+
+
+@app.method('ping')
+def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    logger.info('Received PING, returning PONG')
+    return InvokeMethodResponse(data='PONG')
+
+
 def invoke_method(
         email: str, method: str, attrs: Any, response: DB_Accessor_Response, creating: bool = False
 ) -> InvokeMethodResponse:
@@ -74,7 +91,7 @@ def invoke_method(
         result = getattr(repo, method)(attrs)
     except ConnectionError as e:
         resp = exception_response(str(e))
-        logger.error(f'Exception: {str(e)}')
+        logger.exception(f'Exception: {str(e)}')
     else:
         resp = response(result)
         logger.info('Executed successfully.')

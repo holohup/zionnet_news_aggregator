@@ -15,25 +15,43 @@ logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
 storage = FileStorage(config.filenames)
 updater = NewsUpdater(storage, config.parsing)
+app: App = App()
 
 
+@app.method('update_news')
 def update_news(request: InvokeMethodRequest) -> InvokeMethodResponse:
     logger.info(f'Received news update request: {request.text()}')
+    if not request.text():
+        logger.warning('Empty tag list provided, returning')
+        return InvokeMethodResponse(data='ok')
     try:
         updater.update_news(request.text())
     except Exception as e:
-        logger.error(f'Failed to update news: {str(e)}')
-        raise
+        logger.exception(f'Failed to update news: {str(e)}')
+        return InvokeMethodResponse(data=str(e))
     else:
-        logger.info('Parse success')
+        logger.info('Parse complete')
+    return InvokeMethodResponse(data='ok')
 
+
+@app.method('ping')
+def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    logger.info('Received PING, returning PONG')
+    return InvokeMethodResponse(data='PONG')
 
 class Fake:
     def __init__(self) -> None:
         pass
 
     def text(self):
-        return json.dumps({'tags': 'Biden, tesla, us, celebrities', 'source_countries': 'us, il'})
+        return json.dumps(
+            {'tags': 'Biden, tesla, us, celebrities', 'source_countries': 'us, il'}
+        )
+
+
+if __name__ == '__main__':
+    logger.info('Starting db_accessor')
+    app.run(config.grpc.port)
 
 
 # update_news(Fake())

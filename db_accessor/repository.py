@@ -77,6 +77,16 @@ class RedisUserRepository(UserRepository):
         user: User = self.get_user(email)
         return user.password
 
+    def get_all_user_tags(self) -> str:
+        emails = self._get_all_emails()
+        users = [self.get_user(email) for email in emails]
+        unique_tags = {tag.strip().lower() for user in users for tag in user.settings.tags.split(',') if tag}
+        logger.info(f'Tags ready: {unique_tags}')
+        return ', '.join(sorted(unique_tags))
+
+    def _get_all_emails(self) -> list[str]:
+        return [email.lstrip(self._prefix) for email in self._r.scan_iter(self._prefix+'*')]
+
     # def store(self, k: str, v: str):
     #     self._r.set(k, json.dumps(v))
 

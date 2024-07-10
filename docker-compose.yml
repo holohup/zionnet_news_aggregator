@@ -1,17 +1,16 @@
 services:  
   api_gateway:
-    # env_file:
-    #   - TCSApiAccessor/.env.example
     build:
       context: api_gateway
-      # uncomment the next line to run on a Raspberry Pi
-      # dockerfile: Dockerfile_raspberry_pi
     volumes:
-      - ./logs/:/app/log/
+      - ./logs:/app/log
     networks:
       - digester_network
     ports:
       - 8000:8000
+    depends_on:
+      - user_manager
+      - ai_manager
   api_gateway-dapr:
     image: "daprio/daprd:edge"
     deploy:
@@ -37,7 +36,7 @@ services:
     build:
       context: db_accessor
     volumes:
-      - ./logs/:/app/log/
+      - ./logs:/app/log
     networks: 
       - digester_network
     depends_on:
@@ -65,11 +64,74 @@ services:
       - db_accessor
     network_mode: "service:db_accessor"
 
+  news_accessor:
+    build:
+      context: news_accessor
+    volumes:
+      - ./logs:/app/log
+      - ./news:/app/news
+    networks: 
+      - digester_network
+    # depends_on:
+    #   redis:
+    #     condition: service_healthy
+  news_accessor-dapr:
+    image: "daprio/daprd:edge"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 10
+        window: 120s
+    command: [
+      "./daprd",
+      "--app-id", "news_accessor",
+      "--app-port", "50052",
+      "--app-protocol", "grpc",
+      "--resources-path", "./components"
+    ]
+    volumes:
+      - ./components:/components
+      - ./secrets/secrets.json:/secrets.json
+    depends_on:
+      - news_accessor
+    network_mode: "service:news_accessor"
+
+  ai_accessor:
+    build:
+      context: ai_accessor
+    volumes:
+      - ./logs:/app/log
+    networks: 
+      - digester_network
+  ai_accessor-dapr:
+    image: "daprio/daprd:edge"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 10
+        window: 120s
+    command: [
+      "./daprd",
+      "--app-id", "ai_accessor",
+      "--app-port", "50051",
+      "--app-protocol", "grpc",
+      "--resources-path", "./components"
+    ]
+    volumes:
+      - ./components:/components
+      - ./secrets/secrets.json:/secrets.json
+    depends_on:
+      - ai_accessor
+    network_mode: "service:ai_accessor"
+
+
   user_manager:
     build:
       context: user_manager
     volumes:
-      - ./logs/:/app/log/
+      - ./logs:/app/log
     networks: 
       - digester_network
     depends_on:
@@ -95,6 +157,41 @@ services:
     depends_on:
       - user_manager
     network_mode: "service:user_manager"
+
+
+  ai_manager:
+    build:
+      context: ai_manager
+    volumes:
+      - ./logs:/app/log
+    networks: 
+      - digester_network
+    depends_on:
+      - news_accessor
+      - ai_accessor
+      - db_accessor
+  ai_manager-dapr:
+    image: "daprio/daprd:edge"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 10
+        window: 120s
+    command: [
+      "./daprd",
+      "--app-id", "ai_manager",
+      "--app-port", "50051",
+      "--app-protocol", "grpc",
+      "--resources-path", "./components"
+    ]
+    volumes:
+      - ./components:/components
+      - ./secrets/secrets.json:/secrets.json
+    depends_on:
+      - ai_manager
+    network_mode: "service:ai_manager"
+
 
   redis:
     image: redis:latest
