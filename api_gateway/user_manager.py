@@ -9,7 +9,7 @@ import jwt
 from pydantic import ValidationError
 
 from exceptions import server_error_dict, credentials_exception, http_exception, token_expired_exception
-from schema import Token, TokenPayload, User
+from schema import Token, TokenPayload, User, UpdateUserSettingsRequest
 
 from dapr.aio.clients import DaprClient
 from dapr.clients.grpc._response import InvokeMethodResponse
@@ -45,6 +45,11 @@ class UserManager:
         logger.info('Fetched successfully.')
         return result
 
+    async def update_settings(self, request: UpdateUserSettingsRequest) -> dict:
+        result = await self._invoke_user_manager_method('update_settings', request.model_dump_json())
+        logger.info('Received response from UserManager')
+        return result
+
     async def create_token(self, email, password) -> dict:
         logger.info(f'Creating token for {email}')
         result = await self._invoke_user_manager_method(
@@ -67,15 +72,13 @@ class UserManager:
         except (ValidationError, jwt.PyJWTError):
             logger.info('Token not valid')
             raise credentials_exception
-        logger.warning(f'{token_data=}')
-        logger.warning(datetime.fromtimestamp(token_data.exp))
-        logger.warning(datetime.now())
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
             logger.info(f'Token expired. {token_data.exp}, {type(token_data.exp)}')
             raise token_expired_exception
         response = await self.get_user(email=token_data.email)
         user = response['detail']
-        return User(email=token_data.email, is_admin=user['is_admin'])
+        user.update({'email': token_data.email})
+        return User(**user)
 
     async def _invoke_user_manager_method(self, method: str, data) -> dict:
         try:

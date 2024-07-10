@@ -3,7 +3,7 @@ News Aggregator build with microservices
 
 
 all logs are mapped outside containers
-settings: max number of sentences: int, interests: comma-separated str, is_admin: bool, max_news: int
+settings: max number of sentences: int, tags: comma-separated str, is_admin: bool, max_news: int
 
 admin can: get full user info, delete user, change password
 

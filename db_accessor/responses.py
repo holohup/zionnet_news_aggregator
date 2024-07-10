@@ -1,4 +1,4 @@
-from schema import DB_Accessor_Response, User, UserWithEmail
+from schema import DB_Accessor_Response, User, UserWithEmail, UserResponse
 from http import HTTPStatus
 
 
@@ -10,21 +10,23 @@ exists_response = DB_Accessor_Response(
     }
 ).jsons
 
-user_deleted_response = DB_Accessor_Response(
-    **{
-        'result': 'ok',
-        'status_code': HTTPStatus.NO_CONTENT,
-        'detail': '',
-    }
-).jsons
+
+def user_deleted_response(email):
+    return DB_Accessor_Response(
+        **{
+            'result': 'ok',
+            'status_code': HTTPStatus.NO_CONTENT,
+            'detail': f'User {email} deleted',
+        }
+    ).jsons
 
 
-def created_response(user: UserWithEmail) -> str:
+def created_response(user: User) -> str:
     return DB_Accessor_Response(
         **{
             'result': 'ok',
             'status_code': HTTPStatus.CREATED,
-            'detail': f'User {user.email} created',
+            'detail': user.model_dump(),
         }
     ).jsons
 
@@ -54,6 +56,16 @@ def user_info_response(user: User) -> str:
         **{
             'result': 'ok',
             'status_code': HTTPStatus.OK,
-            'detail': user,
+            'detail': UserResponse.model_validate(user.model_dump()),
+        }
+    ).jsons
+
+
+def hash_response(hash: str) -> str:
+    return DB_Accessor_Response(
+        **{
+            'result': 'ok',
+            'status_code': HTTPStatus.OK,
+            'detail': hash,
         }
     ).jsons

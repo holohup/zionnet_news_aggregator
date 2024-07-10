@@ -1,9 +1,11 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class RegistrationRequest(BaseModel):
     email: EmailStr
     password: str
+    contact_info: str = ''
 
     @field_validator('password', mode='after')
     @classmethod
@@ -23,14 +25,45 @@ class TokenData(BaseModel):
     is_admin: bool
 
 
-class TokenRequest(RegistrationRequest):
-    pass
+class TokenRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserSettings(BaseModel):
+    max_sentences: int | None = None
+    max_news: int | None = None
+    info: str | None = None
+    tags: str | None = None
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "max_sentences": 5,
+                    "max_news": 10,
+                    "info": 'I am a junior programmer, I live in DC, I am interested in football and celebrities',
+                    "tags": 'football, Ronaldo, Mark Knopfler',
+                }
+            ]
+        }
+    }
 
 
 class User(BaseModel):
     email: str
     is_admin: bool
+    contact_info: str
+    latest_news_processed: str
+    settings: UserSettings
 
 
-class TokenPayload(User):
+class TokenPayload(BaseModel):
+    email: str
+    is_admin: bool
     exp: float
+
+
+class UpdateUserSettingsRequest(BaseModel):
+    email: str
+    settings: UserSettings
