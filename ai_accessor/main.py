@@ -16,6 +16,7 @@ kernel = Kernel()
 
 
 async def main():
+    return
     kernel.add_service(
         OpenAIChatCompletion(
             ai_model_id='gpt-3.5-turbo',

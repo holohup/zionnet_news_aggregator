@@ -5,8 +5,9 @@ from dataclasses import dataclass, asdict
 class ParseSettings:
     text: str = ''  # comma separated interests, e.g. 'tesla, Biden, covid'
     language: str = 'en'  # ISO 6391 language code
-    source_countries: str = 'us, il'  # A comma-separated list of ISO 3166 country codes of news origin.
+    source_countries: str = 'US, IL'  # A comma-separated list of ISO 3166 country codes of news origin.
     sort: str = 'publish-time'
+    sort_direction: str = 'DESC'
     number: int = 100  # results per page while parsing
 
     @property

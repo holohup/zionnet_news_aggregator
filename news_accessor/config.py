@@ -26,10 +26,16 @@ class ParsingConfig:
 
 
 @dataclass
+class GRPCSettings:
+    port: int
+
+
+@dataclass
 class Config:
     logging: LoggingConfig
     filenames: FilenamesConfig
     parsing: ParsingConfig
+    grpc: GRPCSettings
 
 
 def get_api_key(store_name: str, var: str):
@@ -44,7 +50,8 @@ def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
         filenames=FilenamesConfig(latest_update_filename='news/latest_update.json', news_filename='news/news.json'),
-        parsing=ParsingConfig(max_entries=100, news_expiration_hours=timedelta(hours=24), api_key=api_key)
+        parsing=ParsingConfig(max_entries=100, news_expiration_hours=timedelta(hours=24), api_key=api_key),
+        grpc=GRPCSettings(port=50052)
     )
 
 
