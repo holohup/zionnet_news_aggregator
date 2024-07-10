@@ -38,18 +38,26 @@ class DB_Accessor:
         logger.info('Received response from DB Accessor.')
         return result
 
-    def create_token(self, data: str, config) -> str:
-        data = parse_data(data)
+    def update_settings(self, data: str) -> str:
+        logger.info('Updating settings.')
+        result = self._invoke_db_method('update_user_settings', data)
+        logger.info('Received response from DB Accessor.')
+        return result
+
+    def create_token(self, req_data: str, config) -> str:
+        data = parse_data(req_data)
         email = data['email']
-        user_from_db_str = self.get_user(email)
-        user_from_db = parse_data(user_from_db_str)
-        if user_from_db['status_code'] != 200:
-            return user_from_db_str
-        if not verify_password(data['password'], user_from_db['detail']['password']):
+        hash_response = json.loads(self._invoke_db_method('get_password_hash', email))
+        if hash_response['status_code'] != 200:
+            return json.dumps({
+                'result': 'error', 'status_code': 500, 'detail': 'Could not fetch password hash'
+            })
+        if not verify_password(data['password'], hash_response['detail']):
             return json.dumps({
                 'result': 'error', 'status_code': 401, 'detail': 'Incorrect username or password'
             })
         logger.info(f'All checks OK. Generating token for user {email}')
+        user_from_db = json.loads(self.get_user(email))
         token = create_access_token(
             {'email': email, 'is_admin': user_from_db['detail']['is_admin']}, config
         )

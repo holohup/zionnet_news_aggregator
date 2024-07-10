@@ -44,6 +44,15 @@ def get_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
     return InvokeMethodResponse(data=result)
 
 
+@app.method(name='update_settings')
+def update_settings(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    data = request.text()
+    logger.info('Updating settings.')
+    result = db_accessor.update_settings(data)
+    logger.info('Sending result')
+    return InvokeMethodResponse(data=result)
+
+
 @app.method(name='create_token')
 def create_token(request: InvokeMethodRequest) -> InvokeMethodResponse:
     logger.info('Received token creation request')

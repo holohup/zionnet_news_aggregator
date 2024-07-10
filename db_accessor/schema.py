@@ -11,9 +11,15 @@ class BaseModelWithJSONString(BaseModel):
 class UserSettings(BaseModelWithJSONString):
     max_sentences: int = 5
     max_news: int = 10
-    interests: list[str] = []
     info: str = ''
     tags: str = ''
+
+
+class UserResponse(BaseModel):
+    is_admin: bool = False
+    contact_info: str = ''
+    latest_news_processed: str = ''
+    settings: UserSettings = UserSettings()
 
 
 class User(BaseModelWithJSONString):
@@ -31,4 +37,4 @@ class UserWithEmail(User):
 class DB_Accessor_Response(BaseModelWithJSONString):
     result: str
     status_code: int
-    detail: str | User
+    detail: str | UserResponse

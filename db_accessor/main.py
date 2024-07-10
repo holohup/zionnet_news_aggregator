@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic_core import from_json
 from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
 from redis.exceptions import ConnectionError
@@ -7,11 +8,12 @@ import logging.config
 
 from config import load_config
 from repository import RedisUserRepository
-from schema import User, UserWithEmail
+from schema import DB_Accessor_Response, User, UserWithEmail
 from responses import (
     exists_response,
     created_response,
     exception_response,
+    hash_response,
     user_deleted_response,
     user_not_found,
     user_info_response
@@ -29,56 +31,54 @@ app = App()
 
 @app.method(name='create_user')
 def create_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
-    user_with_email = UserWithEmail(**from_json(request.text()))
-    logger.info(f'Received user creation request {user_with_email.email}')
-    try:
-        if repo.user_exists(user_with_email.email):
-            logger.warning('User already exists')
-            return InvokeMethodResponse(data=exists_response)
-        repo.create_user(user_with_email)
-    except ConnectionError as e:
-        result = exception_response(str(e))
-        logger.error(f'Exception: {str(e)}')
-    else:
-        result = created_response(user_with_email)
-        logger.info('User created')
-    return InvokeMethodResponse(data=result)
+    user = UserWithEmail(**from_json(request.text()))
+    return invoke_method(user.email, 'create_user', user, created_response, creating=True)
 
 
 @app.method(name='delete_user')
 def delete_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
-    user_email = request.text()
-    logger.info(f'Received user DELETION request for {user_email}')
-    try:
-        if not repo.user_exists(user_email):
-            logger.warning('User does not exist')
-            return InvokeMethodResponse(data=user_not_found(user_email))
-        repo.delete_user(user_email)
-    except ConnectionError as e:
-        result = exception_response(str(e))
-        logger.error(f'Exception: {str(e)}')
-    else:
-        result = user_deleted_response
-        logger.info('User deleted')
-    return InvokeMethodResponse(data=result)
+    email = request.text()
+    return invoke_method(email, 'delete_user', email, user_deleted_response)
 
 
 @app.method(name='get_user_info')
 def get_user_info(request: InvokeMethodRequest) -> InvokeMethodResponse:
-    user_email = request.text()
-    logger.info(f'Received get user info request for {user_email}')
+    email = request.text()
+    return invoke_method(email, 'get_user', email, user_info_response)
+
+
+@app.method(name='update_user_settings')
+def update_user_settings(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    settings_request = from_json(request.text())
+    email = settings_request['email']
+    return invoke_method(email, 'update_settings', settings_request, user_info_response)
+
+
+@app.method(name='get_password_hash')
+def get_password_hash(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    email = request.text()
+    return invoke_method(email, 'get_password_hash', email, hash_response)
+
+
+def invoke_method(
+        email: str, method: str, attrs: Any, response: DB_Accessor_Response, creating: bool = False
+) -> InvokeMethodResponse:
+    logging.info(f'Trying to execute {method} for {email}')
     try:
-        if not repo.user_exists(user_email):
-            logger.warning('User does not exist')
-            return InvokeMethodResponse(data=user_not_found(user_email))
-        user = repo.get_user(user_email)
+        if creating and repo.user_exists(email):
+            logger.warning('User already exists')
+            return InvokeMethodResponse(data=exists_response)
+        if not creating and not repo.user_exists(email):
+            logger.warning(f'User {email} does not exist')
+            return InvokeMethodResponse(data=user_not_found(email))
+        result = getattr(repo, method)(attrs)
     except ConnectionError as e:
-        result = exception_response(str(e))
+        resp = exception_response(str(e))
         logger.error(f'Exception: {str(e)}')
     else:
-        result = user_info_response(user)
-        logger.info('User data fetched, returning it.')
-    return InvokeMethodResponse(data=result)
+        resp = response(result)
+        logger.info('Executed successfully.')
+    return InvokeMethodResponse(data=resp)
 
 
 if __name__ == '__main__':
