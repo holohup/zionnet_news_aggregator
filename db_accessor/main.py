@@ -60,6 +60,12 @@ def get_password_hash(request: InvokeMethodRequest) -> InvokeMethodResponse:
     return invoke_method(email, 'get_password_hash', email, hash_response)
 
 
+# @app.method(name='set_users_last_digest_time')
+# def set_users_last_digest_time(request: InvokeMethodRequest) -> InvokeMethodResponse:
+#     email = request.text()
+#     return invoke_method(email, 'set_timestamp', request.text(), set_time_response)
+
+
 @app.method(name='get_user_tags')
 def get_all_user_tags(request: InvokeMethodRequest) -> InvokeMethodResponse:
     logger.info('Preparing tags')
