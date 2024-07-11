@@ -23,11 +23,13 @@ loop = asyncio.new_event_loop()
 
 
 async def process_event(data: dict):
+    if not data['subject'] == 'generate_tags':
+        return
     logger.info('Generating tags')
     request = GenerateTagsRequest.model_validate(data)
     result = await ai.generate_tags(description=request.description, maximum_tags=request.max_tags)
     logger.info('Result ready')
-    response = GenerateTagsResponse(result=str(result), id=request.id)
+    response = GenerateTagsResponse(result=str(result), id=request.id, recipient='user_manager')
     with DaprClient() as client:
         client.publish_event(config.grpc.pubsub, config.grpc.topic, response.model_dump_json())
 
@@ -36,9 +38,11 @@ async def process_event(data: dict):
 def task_consumer(event: v1.Event) -> None:
     data = json.loads(event.Data())
     logger.info(f'Received event: {data}')
-    if data.get('subject') == 'generate_tags':
-        future = asyncio.run_coroutine_threadsafe(process_event(data), loop)
-        future.result()  # Wait for the coroutine to finish to catch any exceptions
+    if data.get('recipient') != 'ai_accessor':
+        logger.info('Not for ai_accessor')
+        return
+    future = asyncio.run_coroutine_threadsafe(process_event(data), loop)
+    future.result()
 
 
 @app.method('ping')
@@ -61,7 +65,7 @@ async def main():
     grpc_thread.start()
     loop_thread = threading.Thread(target=start_event_loop, args=(loop,), daemon=True)
     loop_thread.start()
-    await asyncio.Event().wait()  # Keep the main loop running
+    await asyncio.Event().wait()
 
 if __name__ == '__main__':
     logger.info('Starting AIManager')

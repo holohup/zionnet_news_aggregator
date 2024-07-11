@@ -21,6 +21,9 @@ app: App = App()
 def update_news(event: v1.Event):
     data = json.loads(event.Data())
     logger.info(f'Received news update request: {data}')
+    if data.get('recipient') != 'news_accessor':
+        logger.info('Not for news_accessor')
+        return
     if data.get('subject') == 'update_news':
         request = UpdateNewsRequest.model_validate(data)
         try:

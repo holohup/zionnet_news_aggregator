@@ -5,12 +5,20 @@ class Tags(BaseModel):
     tags: str  # comma separated tags
 
 
-class UpdateNewsRequest(BaseModel):
+class Request(BaseModel):
+    recipient: str
+
+
+class Response(BaseModel):
+    recipient: str
+
+
+class UpdateNewsRequest(Request):
     subject: str = 'update_news'
     detail: Tags
 
 
-class GenerateTagsRequest(BaseModel):
+class GenerateTagsRequest(Response):
     subject: str = 'generate_tags'
     id: int
     description: str
