@@ -5,7 +5,7 @@ from worldnewsapi.models.search_news200_response import SearchNews200Response
 import logging
 
 from config import ParsingConfig
-from schema import ParseSettings
+from schema import ParseSettings, UpdateNewsRequest
 
 
 logger = logging.getLogger(__name__)
@@ -26,8 +26,8 @@ class NewsUpdater:
     def _request_news(self, params: dict, api_instance) -> SearchNews200Response:
         return api_instance.search_news(**params)
 
-    def update_news(self, request: str):
-        config = self._parse_request(request)
+    def update_news(self, request: UpdateNewsRequest):
+        config = self._parse_request(request.model_dump())
         parse_news_config = config.copy()
         parse_news_config.update({'earliest_publish_date': self._storage.get_latest_entry_time()})
         logger.info(f'Ready to parse with settings: {parse_news_config}')
@@ -62,11 +62,10 @@ class NewsUpdater:
         logger.info('Saving new news and updating latest news time stamp.')
         self._storage.save_news(final_data, latest_news)
 
-    def _parse_request(self, request: str) -> ParseSettings:
+    def _parse_request(self, request: dict) -> ParseSettings:
         logger.info(f'Parsing config for request: {request}')
-        req_json = json.loads(request)
         result = {
-            'text': ' OR '.join([tag.strip() for tag in req_json['tags'].split(',')]),
+            'text': ' OR '.join([tag.strip() for tag in request['tags'].split(',')]),
             'number': self._config.max_entries
         }
         config = ParseSettings(**result)

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+from pydantic import BaseModel
 
 
 @dataclass
@@ -13,3 +14,12 @@ class ParseSettings:
     @property
     def dict(self):
         return asdict(self)
+
+
+class Tags(BaseModel):
+    tags: str  # comma separated tags
+
+
+class UpdateNewsRequest(BaseModel):
+    subject: str = 'update_news'
+    detail: Tags

@@ -115,7 +115,7 @@ services:
     command: [
       "./daprd",
       "--app-id", "ai_accessor",
-      "--app-port", "50051",
+      "--app-port", "50053",
       "--app-protocol", "grpc",
       "--resources-path", "./components"
     ]
@@ -147,7 +147,7 @@ services:
     command: [
       "./daprd",
       "--app-id", "user_manager",
-      "--app-port", "50051",
+      "--app-port", "50054",
       "--app-protocol", "grpc",
       "--resources-path", "./components"
     ]
@@ -181,7 +181,7 @@ services:
     command: [
       "./daprd",
       "--app-id", "ai_manager",
-      "--app-port", "50051",
+      "--app-port", "50055",
       "--app-protocol", "grpc",
       "--resources-path", "./components"
     ]
