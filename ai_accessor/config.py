@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from dapr.clients import DaprClient
 import os
 
+DEBUG = str(os.getenv('DEBUG', False)).lower() in ('true', '1', 'yes', 'debug')
+
 
 @dataclass
 class LoggingConfig:
@@ -10,7 +12,9 @@ class LoggingConfig:
 
 @dataclass
 class GRPCConfig:
-    user_manager_app_id: str
+    topic: str
+    port: int
+    pubsub: str
 
 
 @dataclass
@@ -19,10 +23,16 @@ class SecretsConfig:
 
 
 @dataclass
+class AIConfig:
+    model_id: str
+
+
+@dataclass
 class Config:
     logging: LoggingConfig
     grpc: GRPCConfig
     secrets: SecretsConfig
+    ai: AIConfig
 
 
 def configure_env_variables(store_name: str):
@@ -34,8 +44,9 @@ def configure_env_variables(store_name: str):
 def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
-        grpc=GRPCConfig(user_manager_app_id='user_manager'),
-        secrets=SecretsConfig(store_name='localsecretstore')
+        grpc=GRPCConfig(topic='ai_tasks', port=50053, pubsub='pubsub'),
+        secrets=SecretsConfig(store_name='localsecretstore'),
+        ai=AIConfig(model_id='gpt-3.5-turbo')
     )
 
 

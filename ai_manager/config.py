@@ -7,9 +7,15 @@ class LoggingConfig:
 
 
 @dataclass
+class ServiceConfig:
+    pubsub: str
+    topic: str
+    app_id: str
+
+@dataclass
 class GRPCConfig:
-    news_accessor_app_id: str
-    ai_accessor_app_id: str
+    news: ServiceConfig
+    ai: ServiceConfig
     db_accessor_app_id: str
     port: int
 
@@ -30,12 +36,12 @@ def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
         grpc=GRPCConfig(
-            news_accessor_app_id='news_accessor',
-            ai_accessor_app_id='ai_accessor',
+            news=ServiceConfig(app_id='news_accessor', pubsub='pubsub', topic='news_tasks'),
+            ai=ServiceConfig(app_id='ai_accessor', pubsub='pubsub', topic='ai_tasks'),
             db_accessor_app_id='db_accessor',
-            port=50051,
+            port=50055,
         ),
-        news=NewsConfig(pause_between_updates_minutes=2),
+        news=NewsConfig(pause_between_updates_minutes=60),
     )
 
 

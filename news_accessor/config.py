@@ -28,6 +28,8 @@ class ParsingConfig:
 @dataclass
 class GRPCSettings:
     port: int
+    topic: str
+    pubsub: str
 
 
 @dataclass
@@ -51,7 +53,7 @@ def load_config():
         logging=LoggingConfig(logging_config),
         filenames=FilenamesConfig(latest_update_filename='news/latest_update.json', news_filename='news/news.json'),
         parsing=ParsingConfig(max_entries=100, news_expiration_hours=timedelta(hours=24), api_key=api_key),
-        grpc=GRPCSettings(port=50052)
+        grpc=GRPCSettings(topic='news_tasks', port=50052, pubsub='pubsub')
     )
 
 

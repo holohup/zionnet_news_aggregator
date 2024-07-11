@@ -11,6 +11,7 @@ class LoggingConfig:
 @dataclass
 class GRPCConfig:
     db_accessor_app_id: str
+    port: int
 
 
 @dataclass
@@ -31,7 +32,7 @@ class Config:
 def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
-        grpc=GRPCConfig(db_accessor_app_id='db_accessor'),
+        grpc=GRPCConfig(db_accessor_app_id='db_accessor', port=50054),
         jwt=configure_token(store_name='localsecretstore')
     )
 

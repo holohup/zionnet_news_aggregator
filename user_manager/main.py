@@ -64,7 +64,7 @@ def create_token(request: InvokeMethodRequest) -> InvokeMethodResponse:
 if __name__ == '__main__':
 
     logger.info('Starting UserManager')
-    app.run(50051)
+    app.run(config.grpc.port)
 
 
 
