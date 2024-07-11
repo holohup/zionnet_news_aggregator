@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
-def replace_password_with_hash_in_user_data(user_data: str):
+def replace_password_with_hash_in_user_data(user_data: str) -> dict:
     data = dict(json.loads(user_data))
     logger.info(f'Generating password hash for {data["email"]}')
     pwd = data.pop('password')
     data['password'] = generate_hash(pwd)
     logger.info('Hash generated')
-    return json.dumps(data)
+    return data
 
 
 def verify_password(plain_password, hashed_password):

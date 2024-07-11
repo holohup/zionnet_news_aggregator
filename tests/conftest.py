@@ -10,12 +10,12 @@ def test_user_email():
 
 @pytest.fixture
 def test_user_data(test_user_email):
-    return {'email': test_user_email, 'password': 'ThisIsATestPassword'}
+    return {'email': test_user_email, 'password': 'ThisIsATestPassword', 'info': 'I am a barbie girl'}
 
 
 @pytest.fixture
 def admin_json():
-    return {'email': 'saba_eliezer@doar.co.il', 'password': 'this_is_a_test_password'}
+    return {'email': 'saba_eliezer@doar.co.il', 'password': 'this_is_a_test_password', 'info': 'I am a test user'}
 
 
 @pytest.fixture

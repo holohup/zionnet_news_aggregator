@@ -3,13 +3,15 @@ DONT CREATE GENERAL TAGS
 USE SPECIFIC TAGS, THE MORE SPECIFIC, THE BETTER
 DO NOT USE ANYTHING EXCEPT TAGS IN ENGLISH AND COMMAS
 TAGS CAN CONTAIN 1, 2 OR 3 WORDS
-USE NO MORE THEN {{$amount}} TAGS
-THE RESULT SHOULD CONTAIN NOT MORE THEN 99 CHARACTERS
+THE RESULT SHOULD STRICTLY CONTAIN NO MORE THAN {{$amount}} TAGS SEPARATED BY COMMA
+THE RESULT SHOULD STRICTLY CONTAIN NOT MORE THEN 99 CHARACTERS
+EVERY TAG SHOULD BE MEANINGFUL, E.G. IF IT IS MORE THAN 1 WORD, THE WORDS SHOULD MATCH, FOR EXAMPLE, 'football celebrities gaming' IS A BAD TAG, BECAUSE IT DOES NOT MAKE SENSE
+
 
 Create tags:
 I am a middle aged woman, married, two kids. I live in Israel and have never travelled abroad. I love historical movies and shows. My musical interests are wide - from Nightwish to Halou, from Led Zeppelin to Bach.
 +++++
-parenting, music, israel historical shows
+parenting, music, historical shows
 
 Summarize this
 {{$desc}}

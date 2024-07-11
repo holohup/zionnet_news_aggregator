@@ -1,15 +1,13 @@
 from datetime import datetime
 import json
-from typing import Annotated
 import logging
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from pydantic import ValidationError
-
 from exceptions import server_error_dict, credentials_exception, http_exception, token_expired_exception
-from schema import Token, TokenPayload, User, UpdateUserSettingsRequest
+from schema import TokenPayload, User, UpdateUserSettingsRequest, RegistrationRequest
 
 from dapr.aio.clients import DaprClient
 from dapr.clients.grpc._response import InvokeMethodResponse
@@ -28,9 +26,9 @@ class UserManager:
         self._app_id = app_id
         self._token_config = token_config
 
-    async def register_user(self, user_data: str) -> dict:
+    async def register_user(self, user_data: RegistrationRequest) -> dict:
         logger.info('Registering user.')
-        result = await self._invoke_user_manager_method('register_user', user_data)
+        result = await self._invoke_user_manager_method('register_user', user_data.model_dump_json())
         logger.info(f'Created successfully. {result=}')
         return result
 

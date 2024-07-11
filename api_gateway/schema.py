@@ -6,6 +6,7 @@ class RegistrationRequest(BaseModel):
     email: EmailStr
     password: str
     contact_info: str = ''
+    info: str
 
     @field_validator('password', mode='after')
     @classmethod
@@ -13,6 +14,19 @@ class RegistrationRequest(BaseModel):
         if not password:
             raise ValueError('Password can not be empy')
         return password
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "email": "user@example.com",
+                    "password": "string",
+                    "contact_info": "44040624",
+                    "info": 'I am a junior programmer, I live in DC, I am interested in football and celebrities. I really love bikes, ski and swimming, but I prefer playing minecraft or BrawlStars all day.',
+                }
+            ]
+        }
+    }
 
 
 class Token(BaseModel):

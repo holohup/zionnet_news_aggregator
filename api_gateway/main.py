@@ -31,7 +31,7 @@ async def register_new_user(request: RegistrationRequest):
     logger.info(
         f'Registering user: {request.email} {obfuscate_password(request.password)}'
     )
-    result = await u_manager.register_user(request.model_dump_json())
+    result = await u_manager.register_user(request)
     status_code = result.pop('status_code')
     return JSONResponse(content=result, status_code=status_code)
 
