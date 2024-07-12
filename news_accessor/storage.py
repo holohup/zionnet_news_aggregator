@@ -102,7 +102,7 @@ class FileStorage(Storage):
         data = self._read_news_file()
         found_first_entry = False
         i = 0
-        while not found_first_entry:
+        while not found_first_entry and i < len(data):
             if self._dt_from_pd(data[i]['publish_date']) <= dt:
                 i += 1
                 continue
