@@ -72,9 +72,6 @@ services:
       - ./news:/app/news
     networks: 
       - digester_network
-    # depends_on:
-    #   redis:
-    #     condition: service_healthy
   news_accessor-dapr:
     image: "daprio/daprd:edge"
     deploy:
@@ -170,6 +167,7 @@ services:
       - news_accessor
       - ai_accessor
       - db_accessor
+      - tg_accessor
   ai_manager-dapr:
     image: "daprio/daprd:edge"
     deploy:
@@ -191,6 +189,36 @@ services:
     depends_on:
       - ai_manager
     network_mode: "service:ai_manager"
+
+
+  tg_accessor:
+    build:
+      context: tg_accessor
+    volumes:
+      - ./logs:/app/log
+    networks: 
+      - digester_network
+  tg_accessor-dapr:
+    image: "daprio/daprd:edge"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 10
+        window: 120s
+    command: [
+      "./daprd",
+      "--app-id", "tg_accessor",
+      "--app-port", "50056",
+      "--app-protocol", "grpc",
+      "--resources-path", "./components"
+    ]
+    volumes:
+      - ./components:/components
+      - ./secrets/secrets.json:/secrets.json
+    depends_on:
+      - tg_accessor
+    network_mode: "service:tg_accessor"
 
 
   redis:

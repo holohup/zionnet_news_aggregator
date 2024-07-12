@@ -28,7 +28,7 @@ class MessageProcessor:
         self._reporter = report_config
 
     def process_create_digest_request(self, message: CreateDigestRequest):
-        logger.warning(f'Creating digest for {message.email}')
+        logger.info(f'Creating digest for {message.email}')
         user: UserResponse = self._db.get_user(message.email)
         if not user:
             logger.error('Could not get user, aborting')

@@ -49,6 +49,12 @@ def consumer(event: v1.Event):
         logger.error(f'Error processing message: {e}')
 
 
+@app.method('ping')
+def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    logger.info('Received PING, returning PONG')
+    return InvokeMethodResponse(data='PONG')
+
+
 async def news_updater(pause_minutes: int):
     logger.info(f'Starting news updater, updates are scheduled every {pause_minutes} minutes')
     while True:

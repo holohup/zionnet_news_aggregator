@@ -16,6 +16,7 @@ from config import load_config
 from oauth_email import PasswordRequestForm
 from user_manager import UserManager
 from ai_manager import AI_Manager
+from service_pinger import all_other_services_alive
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)
@@ -126,6 +127,15 @@ async def read_users_me(
 ) -> User:
     logger.info('Servicing a get current user request.')
     return current_user
+
+
+@app.get('/ping', include_in_schema=False)
+async def ping_all_other_services():
+    logger.info('Pinging all services')
+    result = await all_other_services_alive()
+    if not result:
+        return {'error': 'something is not working'}
+    return {'ok': 'all services up'}
 
 
 if __name__ == '__main__':

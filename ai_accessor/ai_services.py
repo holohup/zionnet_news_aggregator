@@ -34,10 +34,16 @@ class AI:
 
     async def generate_digest(self, request: CreateDigestAIRequest) -> list[dict]:
         logger.info('Starting digest generation.')
+        if not request.news.news:
+            logger.info('No news for today')
+            return []
         news_by_id = {
             n.id: NewsEntry(url=n.url, text=n.text, summary=n.summary, title=n.title) for n in request.news.news
         }
         interesting_ids = await self._get_most_interesting_ids(request)
+        if not interesting_ids:
+            logger.info('No interesting news for today')
+            return []
         result = [DigestEntry(
             url=news_by_id[id_].url,
             text=str(await self._create_digest(news_by_id[id_].text, request.user.settings.max_sentences))

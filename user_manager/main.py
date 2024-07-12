@@ -92,6 +92,12 @@ def updates_from_ai(event: v1.Event):
         db_accessor.update_settings(request.model_dump_json())
 
 
+@app.method('ping')
+def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    logger.info('Received PING, returning PONG')
+    return InvokeMethodResponse(data='PONG')
+
+
 if __name__ == '__main__':
 
     logger.info('Starting UserManager')
