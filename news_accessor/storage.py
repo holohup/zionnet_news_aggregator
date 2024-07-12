@@ -22,7 +22,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def get_all_news_after_datetime(self, dt: datetime):
+    def get_all_news_after_strtime(self, dt: datetime):
         pass
 
 
@@ -79,8 +79,7 @@ class FileStorage(Storage):
 
     def get_latest_entry_time(self, format: str = ''):
         if not os.path.exists(self._config.latest_update_filename):
-            offset = datetime.now(UTC) - timedelta(hours=1)
-            publish_date = offset.replace(tzinfo=None)
+            publish_date = self._get_dt_from_the_past(24)
         else:
             with open(self._config.latest_update_filename, 'r') as file:
                 result = json.load(file)
@@ -90,7 +89,15 @@ class FileStorage(Storage):
             return new_publish_date
         return new_publish_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    def get_all_news_after_datetime(self, dt: datetime):
+    def _get_dt_from_the_past(self, hours_before):
+        offset = datetime.now(UTC) - timedelta(hours=hours_before)
+        return offset.replace(tzinfo=None)
+
+    def get_all_news_after_strtime(self, strtime: str):
+        if not strtime:
+            dt = self._get_dt_from_the_past(24)
+        else:
+            dt = self._dt_from_pd(strtime)
         logger.info(f'Fetching all news from {dt}')
         data = self._read_news_file()
         found_first_entry = False

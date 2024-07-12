@@ -8,7 +8,7 @@ from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
 import json
 from semantic_kernel import Kernel
 from ai_services import AI
-from schema import GenerateTagsRequest, GenerateTagsResponse
+from schema import GenerateTagsRequest, GenerateTagsResponse, CreateDigestAIRequest, CreateDigestAIResponse, DigestEntry
 from config import load_config, configure_env_variables, DEBUG
 from dapr.clients import DaprClient
 
@@ -22,9 +22,7 @@ app = App()
 loop = asyncio.new_event_loop()
 
 
-async def process_event(data: dict):
-    if not data['subject'] == 'generate_tags':
-        return
+async def generate_tags(data):
     logger.info('Generating tags')
     request = GenerateTagsRequest.model_validate(data)
     result = await ai.generate_tags(description=request.description, maximum_tags=request.max_tags)
@@ -34,10 +32,35 @@ async def process_event(data: dict):
         client.publish_event(config.grpc.pubsub, config.grpc.topic, response.model_dump_json())
 
 
+async def create_digest(data):
+    logger.info('Creating a digest')
+    request = CreateDigestAIRequest.model_validate(data)
+    result = await ai.generate_digest(request)
+    response = CreateDigestAIResponse(digest=result, id=request.id)
+    logger.info('Digest ready')
+    with DaprClient() as client:
+        client.publish_event(config.grpc.pubsub, config.grpc.topic, response.model_dump_json())
+
+
+executors = {
+    'generate_tags': generate_tags,
+    'create_digest': create_digest
+}
+
+
+async def process_event(data: dict):
+    subject = data['subject']
+    executor = executors.get(subject)
+    if not executor:
+        return
+    logger.info(f'Executor for {subject} found, proceeding')
+    await executors[subject](data)
+
+
 @app.subscribe(pubsub_name=config.grpc.pubsub, topic=config.grpc.topic)
 def task_consumer(event: v1.Event) -> None:
     data = json.loads(event.Data())
-    logger.info(f'Received event: {data}')
+    logger.info('Received event')
     if data.get('recipient') != 'ai_accessor':
         logger.info('Not for ai_accessor')
         return

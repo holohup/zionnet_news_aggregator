@@ -2,41 +2,58 @@ import asyncio
 import json
 import logging
 import logging.config
-from dapr.ext.grpc import App
+from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+from pydantic import ValidationError
 from utils import all_accessors_are_up
-from schema import GenerateTagsResponse
 from news_accessor import News_Accessor
 from ai_accessor import AI_Accessor
+from db_accessor import DB_Accessor
 from config import load_config
 import threading
 from cloudevents.sdk.event import v1
+from routes import parse_details
+from id_accountant import IDAccountant
+from processors import MessageProcessor
+
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
-news_accessor: News_Accessor = News_Accessor(config.grpc)
-ai_accessor: AI_Accessor = AI_Accessor(config.grpc.ai)
+accountant = IDAccountant()
+news_accessor: News_Accessor = News_Accessor(config=config.grpc)
+ai_accessor: AI_Accessor = AI_Accessor(config=config.grpc.ai)
+db_accessor: DB_Accessor = DB_Accessor(db_app_id=config.grpc.db_accessor_app_id)
+processor: MessageProcessor = MessageProcessor(
+    ai=ai_accessor, db=db_accessor, news=news_accessor, id_acc=accountant, report_config=config.grpc.tg
+)
+
 app = App()
 
 
 @app.subscribe(config.grpc.ai.pubsub, config.grpc.ai.topic)
-def updates_from_ai(event: v1.Event):
+def consumer(event: v1.Event):
     data = json.loads(event.Data())
-    logger.info(f'Received event: {data}')
-    if not data.get('recipient') == 'ai_manager':
+    logger.info('Received event.')
+    if data.get('recipient') != 'ai_manager':
         logger.info('Not for ai_manager')
         return
-    if data.get('subject') == 'tags_response':
-        response = GenerateTagsResponse.model_validate(data)
-        logger.warning(response.id)
-        logger.warning(response.result)
+    try:
+        message_processor = parse_details[data['subject']]
+        validated_data = message_processor.model(**data)
+        getattr(processor, message_processor.processor)(validated_data)
+    except KeyError:
+        logger.error(f'Unknown subject: {data["subject"]}')
+    except ValidationError as e:
+        logger.error(f'Validation error: {e}')
+    except Exception as e:
+        logger.error(f'Error processing message: {e}')
 
 
 async def news_updater(pause_minutes: int):
     logger.info(f'Starting news updater, updates are scheduled every {pause_minutes} minutes')
     while True:
         try:
-            await news_accessor.update_news()
+            # await news_accessor.update_news()
             await asyncio.sleep(pause_minutes * 60)
         except Exception as e:
             logger.exception(e)

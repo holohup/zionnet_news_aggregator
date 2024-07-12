@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "description": "Return ids of most interesting news",
+  "execution_settings": {
+    "default": {
+      "max_tokens": 512,
+      "temperature": 0.0,
+      "top_p": 0.0,
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0
+    }
+  },
+  "input_variables": [
+    {
+      "name": "desc",
+      "description": "Users self description",
+      "default": "",
+      "is_required": true
+    },
+    {
+      "name": "max_news",
+      "description": "Maximum amount of interesting news",
+      "default": "10",
+      "is_required": true
+    },
+    {
+      "name": "tags",
+      "description": "Comma separated tags that also describe user interest",
+      "default": "",
+      "is_required": true
+    },
+    {
+      "name": "news",
+      "description": "Json with news ids and summaries",
+      "default": "",
+      "is_required": true
+    }
+  ]
+}

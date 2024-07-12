@@ -67,11 +67,11 @@ class RedisUserRepository(UserRepository):
         return self.get_user(email)
 
     def _update_user_data(self, email: str, field: str, value: Any):
-        user: User = self.get_user(email)
+        user: User = self.get_user(email.lower())
         setattr(user, field, value)
-        new_user = {'email': email, **user.model_dump()}
+        new_user = UserWithEmail.model_validate({'email': email, **user.model_dump()})
         self.delete_user(email)
-        self.create_user(UserWithEmail.model_validate(new_user))
+        self.create_user(new_user)
 
     def get_password_hash(self, email: str) -> str:
         user: User = self.get_user(email)
@@ -83,6 +83,10 @@ class RedisUserRepository(UserRepository):
         unique_tags = {tag.strip().lower() for user in users for tag in user.settings.tags.split(',') if tag}
         logger.info(f'Tags ready: {unique_tags}')
         return ', '.join(sorted(unique_tags))
+
+    def update_timestamp(self, data: dict) -> User:
+        self._update_user_data(data['email'], 'latest_news_processed', data['latest_update'])
+        return self.get_user(data['email'])
 
     def _get_all_emails(self) -> list[str]:
         return [email.lstrip(self._prefix) for email in self._r.scan_iter(self._prefix+'*')]

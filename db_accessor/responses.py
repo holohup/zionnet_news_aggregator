@@ -1,4 +1,4 @@
-from schema import DB_Accessor_Response, User, UserWithEmail, UserResponse
+from schema import DB_Accessor_Response, User, UserResponse
 from http import HTTPStatus
 
 
@@ -57,6 +57,16 @@ def user_info_response(user: User) -> str:
             'result': 'ok',
             'status_code': HTTPStatus.OK,
             'detail': UserResponse.model_validate(user.model_dump()),
+        }
+    ).jsons
+
+
+def user_time_updated_response(user: User) -> str:
+    return DB_Accessor_Response(
+        **{
+            'result': 'ok',
+            'status_code': HTTPStatus.OK,
+            'detail': f'Latest time updated to {user.latest_news_processed}',
         }
     ).jsons
 

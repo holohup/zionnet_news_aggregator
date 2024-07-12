@@ -81,3 +81,9 @@ class TokenPayload(BaseModel):
 class UpdateUserSettingsRequest(BaseModel):
     email: str
     settings: UserSettings
+
+
+class CreateDigestRequest(BaseModel):
+    recipient: str = 'ai_manager'
+    subject: str = 'create_digest'
+    email: str

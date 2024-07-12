@@ -8,7 +8,7 @@ import logging.config
 
 from config import load_config
 from repository import RedisUserRepository
-from schema import DB_Accessor_Response, User, UserWithEmail
+from schema import UserWithEmail
 from responses import (
     exists_response,
     created_response,
@@ -16,7 +16,8 @@ from responses import (
     hash_response,
     user_deleted_response,
     user_not_found,
-    user_info_response
+    user_info_response,
+    user_time_updated_response
 )
 
 
@@ -60,10 +61,10 @@ def get_password_hash(request: InvokeMethodRequest) -> InvokeMethodResponse:
     return invoke_method(email, 'get_password_hash', email, hash_response)
 
 
-# @app.method(name='set_users_last_digest_time')
-# def set_users_last_digest_time(request: InvokeMethodRequest) -> InvokeMethodResponse:
-#     email = request.text()
-#     return invoke_method(email, 'set_timestamp', request.text(), set_time_response)
+@app.method(name='update_time')
+def update_last_news_read_for_user(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    data = from_json(request.text())
+    return invoke_method(data['email'], 'update_timestamp', data, user_time_updated_response)
 
 
 @app.method(name='get_user_tags')
@@ -84,7 +85,7 @@ def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
 
 
 def invoke_method(
-        email: str, method: str, attrs: Any, response: DB_Accessor_Response, creating: bool = False
+        email: str, method: str, attrs: Any, response: callable, creating: bool = False
 ) -> InvokeMethodResponse:
     logging.info(f'Trying to execute {method} for {email}')
     try:

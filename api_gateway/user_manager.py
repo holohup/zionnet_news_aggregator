@@ -6,13 +6,9 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from pydantic import ValidationError
-from exceptions import server_error_dict, credentials_exception, http_exception, token_expired_exception
+from exceptions import credentials_exception, token_expired_exception
 from schema import TokenPayload, User, UpdateUserSettingsRequest, RegistrationRequest
-
-from dapr.aio.clients import DaprClient
-from dapr.clients.grpc._response import InvokeMethodResponse
-from dapr.clients.exceptions import DaprInternalError
-
+from invokers import invoke_grpc_method
 
 logger = logging.getLogger(__name__)
 
@@ -28,30 +24,36 @@ class UserManager:
 
     async def register_user(self, user_data: RegistrationRequest) -> dict:
         logger.info('Registering user.')
-        result = await self._invoke_user_manager_method('register_user', user_data.model_dump_json())
+        result = await invoke_grpc_method(
+            self._app_id, 'register_user', user_data.model_dump_json()
+        )
         logger.info(f'Created successfully. {result=}')
         return result
 
     async def delete_user(self, email: str) -> dict:
         logger.info(f'Deleting user {email}.')
-        await self._invoke_user_manager_method('delete_user', email)
+        await invoke_grpc_method(self._app_id, 'delete_user', email)
         logger.info('Deleted successfully.')
 
     async def get_user(self, email: str) -> dict:
         logger.info(f'Getting user info for {email}.')
-        result = await self._invoke_user_manager_method('get_user', email)
+        result = await invoke_grpc_method(self._app_id, 'get_user', email)
         logger.info('Fetched successfully.')
         return result
 
     async def update_settings(self, request: UpdateUserSettingsRequest) -> dict:
-        result = await self._invoke_user_manager_method('update_settings', request.model_dump_json())
+        result = await invoke_grpc_method(
+            self._app_id, 'update_settings', request.model_dump_json()
+        )
         logger.info('Received response from UserManager')
         return result
 
     async def create_token(self, email, password) -> dict:
         logger.info(f'Creating token for {email}')
-        result = await self._invoke_user_manager_method(
-            'create_token', json.dumps({'email': email, 'password': password})
+        result = await invoke_grpc_method(
+            self._app_id,
+            'create_token',
+            json.dumps({'email': email, 'password': password}),
         )
         logger.info('Received token.')
         token = result['detail']
@@ -77,18 +79,3 @@ class UserManager:
         user = response['detail']
         user.update({'email': token_data.email})
         return User(**user)
-
-    async def _invoke_user_manager_method(self, method: str, data) -> dict:
-        try:
-            async with DaprClient() as client:
-                response: InvokeMethodResponse = await client.invoke_method(
-                    self._app_id, method, data
-                )
-        except DaprInternalError as e:
-            logger.error(str(e))
-            return server_error_dict
-        result = json.loads(response.text())
-        if result['result'] == 'error':
-            logger.error(f'Error: {result["detail"]}')
-            raise http_exception(result)
-        return result
