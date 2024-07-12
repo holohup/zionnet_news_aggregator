@@ -1,13 +1,12 @@
-from datetime import datetime
 import json
 import logging
 import logging.config
-
-from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+from cloudevents.sdk.event import v1
+from dapr.ext.grpc import App, InvokeMethodResponse, InvokeMethodRequest
 
 from config import load_config
-from schema import ParseSettings
 from storage import FileStorage
+from schema import UpdateNewsRequest, News, NewNewsResponse
 from news_updater import NewsUpdater
 
 config = load_config()
@@ -15,28 +14,47 @@ logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
 storage = FileStorage(config.filenames)
 updater = NewsUpdater(storage, config.parsing)
+app: App = App()
 
 
-def update_news(request: InvokeMethodRequest) -> InvokeMethodResponse:
-    logger.info(f'Received news update request: {request.text()}')
-    try:
-        updater.update_news(request.text())
-    except Exception as e:
-        logger.error(f'Failed to update news: {str(e)}')
-        raise
-    else:
-        logger.info('Parse success')
+@app.subscribe(pubsub_name=config.grpc.pubsub, topic=config.grpc.topic)
+def update_news(event: v1.Event):
+    data = json.loads(event.Data())
+    logger.info('Received new event')
+    if data.get('recipient') != 'news_accessor':
+        logger.info('Not for news_accessor')
+        return
+
+    if data.get('subject') == 'update_news':
+        logger.info(f'Received news update request {data}')
+        request = UpdateNewsRequest.model_validate(data)
+        try:
+            updater.update_news(request.detail)
+        except Exception as e:
+            logger.exception(f'Failed to update news: {str(e)}')
+        else:
+            logger.info('Parse complete')
 
 
-class Fake:
-    def __init__(self) -> None:
-        pass
-
-    def text(self):
-        return json.dumps({'tags': 'Biden, tesla, us, celebrities', 'source_countries': 'us, il'})
+@app.method('ping')
+def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    logger.info('Received PING, returning PONG')
+    return InvokeMethodResponse(data='PONG')
 
 
-# update_news(Fake())
-# storage.delete_old_entries(config.parsing.news_expiration_hours)
-# print(storage.get_latest_entry_time())
-# a = storage.get_all_news_after_datetime(datetime.strptime('2024-07-09 18:06:30', '%Y-%m-%d %H:%M:%S'))
+@app.method('get_new_news')
+def get_new_news(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    from_time = request.text()
+    logger.info(f'Preparing new news from {from_time}')
+    news = storage.get_all_news_after_strtime(from_time)
+    result = NewNewsResponse(
+        last_news_time=storage.get_latest_entry_time(),
+        news=[News.model_validate(n) for n in news]
+    )
+    logger.info(f'Returning {len(result.news)} entries')
+    return result.model_dump_json()
+
+
+if __name__ == '__main__':
+    logger.info('Starting News Accessor')
+    app.run(config.grpc.port)

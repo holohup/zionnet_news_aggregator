@@ -10,19 +10,25 @@ import logging.config
 import logging
 
 from exceptions import admin_only_exception
-from schema import RegistrationRequest, Token, TokenRequest, User
+from schema import RegistrationRequest, Token, TokenRequest, User, UserSettings, UpdateUserSettingsRequest
 from utils import obfuscate_password
 from config import load_config
 from oauth_email import PasswordRequestForm
 from user_manager import UserManager
+from ai_manager import AI_Manager
+from service_pinger import all_other_services_alive
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+app: FastAPI = FastAPI(
+    title='News Aggregator API',
+    description='Use AI help to navigate through endless news about nothing, concentrate on real gems only.',
+    version='1.0.0'
+)
 u_manager = UserManager(app_id=config.grpc.user_manager_app_id, token_config=config.jwt)
-
+ai_manager = AI_Manager(config.grpc.ai_manager_pubsub, config.grpc.ai_manager_topic)
 
 
 @app.post('/user/register')
@@ -32,7 +38,23 @@ async def register_new_user(request: RegistrationRequest):
     logger.info(
         f'Registering user: {request.email} {obfuscate_password(request.password)}'
     )
-    result = await u_manager.register_user(request.model_dump_json())
+    result = await u_manager.register_user(request)
+    status_code = result.pop('status_code')
+    return JSONResponse(content=result, status_code=status_code)
+
+
+@app.patch('/user/update_settings')
+async def update_user_settings(
+    settings: UserSettings,
+    current_user: Annotated[User, Depends(u_manager.get_current_user)]
+):
+    """Patch endpoint to update user settings."""
+
+    settings = settings.model_dump(exclude_unset=True)
+    email = current_user.email
+    logger.info(f'Updating settings for {email}')
+    request = UpdateUserSettingsRequest(settings=UserSettings.model_validate(settings), email=email)
+    result = await u_manager.update_settings(request)
     status_code = result.pop('status_code')
     return JSONResponse(content=result, status_code=status_code)
 
@@ -53,6 +75,18 @@ async def delete_user(current_user: Annotated[User, Depends(u_manager.get_curren
     return None
 
 
+@app.post('/digest')
+async def create_digest(current_user: Annotated[User, Depends(u_manager.get_current_user)]):
+    # """Endpoint that launches the digest creation sequence."""
+
+    logger.info(f'Received digest request for {current_user.email}')
+    result = await ai_manager.create_digest(current_user)
+    if result is None:
+        return {'result': 'Your digest will be delivered shortly'}
+    status_code = result.pop('status_code')
+    return JSONResponse(content=result, status_code=status_code)
+
+
 @app.get('/user/info/{user_email}')
 async def get_user_info(current_user: Annotated[User, Depends(u_manager.get_current_user)], user_email: str):
     """Get user info."""
@@ -66,7 +100,7 @@ async def get_user_info(current_user: Annotated[User, Depends(u_manager.get_curr
     return JSONResponse(content=result, status_code=status_code)
 
 
-@app.post('/login', summary='Special endpoint for Swagger integration', response_model=Token)
+@app.post('/login', summary='Hidden endpoint for Swagger auth integration', response_model=Token, include_in_schema=False)
 async def generate_token(req_data: PasswordRequestForm = Depends()) -> Token:
     """Create a token for Swagger UI"""
 
@@ -93,6 +127,15 @@ async def read_users_me(
 ) -> User:
     logger.info('Servicing a get current user request.')
     return current_user
+
+
+@app.get('/ping', include_in_schema=False)
+async def ping_all_other_services():
+    logger.info('Pinging all services')
+    result = await all_other_services_alive()
+    if not result:
+        return {'error': 'something is not working'}
+    return {'ok': 'all services up'}
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from dapr.clients import DaprClient
 
+
 @dataclass
 class LoggingConfig:
     settings: dict
@@ -11,6 +12,9 @@ class LoggingConfig:
 @dataclass
 class GRPCConfig:
     db_accessor_app_id: str
+    port: int
+    pubsub: str
+    topic: str
 
 
 @dataclass
@@ -26,13 +30,15 @@ class Config:
     logging: LoggingConfig
     grpc: GRPCConfig
     jwt: JWTTokenConfig
+    max_tags: int
 
 
 def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
-        grpc=GRPCConfig(db_accessor_app_id='db_accessor'),
-        jwt=configure_token(store_name='localsecretstore')
+        grpc=GRPCConfig(db_accessor_app_id='db_accessor', port=50054, pubsub='pubsub', topic='ai_tasks'),
+        jwt=configure_token(store_name='localsecretstore'),
+        max_tags=3
     )
 
 

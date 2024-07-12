@@ -27,6 +27,11 @@ def test_Given_running_services_When_request_Then_logs_log_at_least_something(te
         assert previous_states[filename] != after_states[filename]
 
 
+def test_Given_running_services_When_pinging_PING_endpoint_Then_all_services_return_PONG(client):
+    response = client.get(user_endpoint_url('ping'))
+    assert response.json() == {'ok': 'all services up'}
+
+
 def file_contents(filename):
     with open(filename, 'r') as f:
         result = f.read()

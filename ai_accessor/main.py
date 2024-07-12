@@ -1,60 +1,102 @@
+import threading
+from cloudevents.sdk.event import v1
 import asyncio
 import logging
 import logging.config
 from dapr.clients.exceptions import DaprInternalError
+from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+import json
 from semantic_kernel import Kernel
-from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
-
-from config import load_config, configure_env_variables
-
+from ai_services import AI
+from schema import GenerateTagsRequest, GenerateTagsResponse, CreateDigestAIRequest, CreateDigestAIResponse, DigestEntry
+from config import load_config, configure_env_variables, DEBUG
+from dapr.clients import DaprClient
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
 
 kernel = Kernel()
+app = App()
+
+loop = asyncio.new_event_loop()
+
+
+async def generate_tags(data):
+    logger.info('Generating tags')
+    request = GenerateTagsRequest.model_validate(data)
+    result = await ai.generate_tags(description=request.description, maximum_tags=request.max_tags)
+    logger.info('Result ready')
+    response = GenerateTagsResponse(result=str(result), id=request.id, recipient='user_manager')
+    with DaprClient() as client:
+        client.publish_event(config.grpc.pubsub, config.grpc.topic, response.model_dump_json())
+
+
+async def create_digest(data):
+    logger.info('Creating a digest')
+    request = CreateDigestAIRequest.model_validate(data)
+    result = await ai.generate_digest(request)
+    response = CreateDigestAIResponse(digest=result, id=request.id)
+    logger.info('Digest ready')
+    with DaprClient() as client:
+        client.publish_event(config.grpc.pubsub, config.grpc.topic, response.model_dump_json())
+
+
+executors = {
+    'generate_tags': generate_tags,
+    'create_digest': create_digest
+}
+
+
+async def process_event(data: dict):
+    subject = data['subject']
+    executor = executors.get(subject)
+    if not executor:
+        return
+    logger.info(f'Executor for {subject} found, proceeding')
+    await executors[subject](data)
+
+
+@app.subscribe(pubsub_name=config.grpc.pubsub, topic=config.grpc.topic)
+def task_consumer(event: v1.Event) -> None:
+    data = json.loads(event.Data())
+    logger.info('Received event')
+    if data.get('recipient') != 'ai_accessor':
+        logger.info('Not for ai_accessor')
+        return
+    future = asyncio.run_coroutine_threadsafe(process_event(data), loop)
+    future.result()
+
+
+@app.method('ping')
+def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    logger.info('Received PING, returning PONG')
+    return InvokeMethodResponse(data='PONG')
+
+
+def run_app():
+    app.run(config.grpc.port)
+
+
+def start_event_loop(loop):
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
 
 
 async def main():
-    kernel.add_service(
-        OpenAIChatCompletion(
-            ai_model_id='gpt-3.5-turbo',
-            service_id='chat-gpt',
-        )
-    )
+    grpc_thread = threading.Thread(target=run_app, daemon=True)
+    grpc_thread.start()
+    loop_thread = threading.Thread(target=start_event_loop, args=(loop,), daemon=True)
+    loop_thread.start()
+    await asyncio.Event().wait()
 
-    plugin = kernel.add_plugin(
-        parent_directory="prompt_templates", plugin_name="DigestPlugin"
-    )
-    digest_function = plugin["digest"]
-
-    result = await kernel.invoke(
-        digest_function,
-        input="""Hopes of Gaza ceasefire rise further as Hamas reportedly backs new proposal
-Militant group gives initial backing to plan for phased deal after ‘verbal commitments’ from mediators
-Israel-Gaza war – live updates
-Jason Burke in Jerusalem
-Sat 6 Jul 2024 15.59 BST
-Share
-Hopes for a ceasefire in Gaza have risen further after reports that Hamas has given its initial approval of a new US-backed proposal for a phased deal.
-
-Egyptian officials and representatives of the militant Islamist organisation confirmed Hamas had dropped a key demand that Israel commits to a definitive end to the war before any pause in hostilities, Reuters and the Associated Press reported.
-
-Efforts to secure a ceasefire and hostage release in Gaza have intensified over recent days, with active shuttle diplomacy among Washington, Israel and Qatar, which is leading mediation efforts from Doha, where the exiled Hamas leadership is based.
-
-Observers said any progress was welcome, but pointed out that multiple rounds of negotiations over more than seven months had so far failed to bring success.""",
-        amount_of_sentences=str(1),
-    )
-    print(result)
-
-
-if __name__ == "__main__":
-    logger.info('Starting AI Accessor')
-    try:
-        configure_env_variables(config.secrets.store_name)
-    except DaprInternalError as e:
-        logger.error(f'Could not connect to the secrets store. Terminating. {str(e)}')
-        raise
+if __name__ == '__main__':
+    logger.info('Starting AIManager')
+    if not DEBUG:
+        try:
+            configure_env_variables(config.secrets.store_name)
+        except DaprInternalError as e:
+            logger.error(f'Could not connect to the secrets store. Terminating. {str(e)}')
+            raise
+    ai = AI(kernel, config.ai)
     asyncio.run(main())
-
-# semantic_kernel.exceptions.kernel_exceptions.KernelInvokeException, ServiceResponseException, openai.RateLimitError

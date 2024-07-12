@@ -9,21 +9,35 @@ from dapr.clients.grpc._response import InvokeMethodResponse
 from dapr.clients.exceptions import DaprInternalError
 
 from security import verify_password, create_access_token
-from utils import parse_data
-
+from ai_accessor import AI_Accessor
+from responses import server_error, token_response, hash_error, credentials_error
+from schema import RegistrationRequest, UserRegistrationSettings, UserWithEmail
+from id_accountant import IDAccountant
 logger = logging.getLogger(__name__)
 
 
 class DB_Accessor:
     """Class incapsulates the methods to work with DB Accessor via gRPC."""
 
-    def __init__(self, app_id) -> None:
+    def __init__(self, app_id, accountant: IDAccountant, ai_accessor: AI_Accessor) -> None:
         self._app_id = app_id
+        self._emails = accountant
+        self._ai = ai_accessor
 
-    def create_user(self, user_data: str) -> str:
+    def create_user(self, user_request: RegistrationRequest) -> str:
+        user = UserWithEmail(
+            email=user_request.email,
+            password=user_request.password,
+            contact_info=user_request.contact_info,
+            settings=UserRegistrationSettings(info=user_request.info)
+        )
         logger.info('Registering user.')
-        result = self._invoke_db_method('create_user', user_data)
+        result = self._invoke_db_method('create_user', user.model_dump_json())
         logger.info(f'Received response from DB Accessor: {result}')
+        if json.loads(result)['result'] != 'error':
+            logger.info('Generating tags for the new user')
+            id_ = self._emails.new_id(user_request.email.lower())
+            self._ai.queue_tags_generation(id_, user.settings.info)
         return result
 
     def delete_user(self, email: str) -> str:
@@ -38,27 +52,27 @@ class DB_Accessor:
         logger.info('Received response from DB Accessor.')
         return result
 
-    def create_token(self, data: str, config) -> str:
-        data = parse_data(data)
+    def update_settings(self, data: str) -> str:
+        logger.info('Updating settings.')
+        result = self._invoke_db_method('update_user_settings', data)
+        logger.info('Received response from DB Accessor.')
+        return result
+
+    def create_token(self, req_data: str, config) -> str:
+        data = json.loads(req_data)
         email = data['email']
-        user_from_db_str = self.get_user(email)
-        user_from_db = parse_data(user_from_db_str)
-        if user_from_db['status_code'] != 200:
-            return user_from_db_str
-        if not verify_password(data['password'], user_from_db['detail']['password']):
-            return json.dumps({
-                'result': 'error', 'status_code': 401, 'detail': 'Incorrect username or password'
-            })
+        hash_response = json.loads(self._invoke_db_method('get_password_hash', email))
+        if hash_response['status_code'] != 200:
+            return hash_error
+        if not verify_password(data['password'], hash_response['detail']):
+            return credentials_error
         logger.info(f'All checks OK. Generating token for user {email}')
+        user_from_db = json.loads(self.get_user(email))
         token = create_access_token(
             {'email': email, 'is_admin': user_from_db['detail']['is_admin']}, config
         )
         logger.info('Token created successfully.')
-        return json.dumps({
-            'result': 'ok',
-            'status_code': 200,
-            'detail': {'access_token': token, 'token_type': config.token_type},
-        })
+        return token_response(token, config.token_type)
 
     def _invoke_db_method(self, method: str, data) -> str:
         try:
@@ -68,13 +82,5 @@ class DB_Accessor:
                 )
         except DaprInternalError as e:
             logger.error(str(e))
-            return json.dumps(self._server_error_dict)
+            return server_error
         return response.text()
-
-    @property
-    def _server_error_dict(self):
-        return {
-            'result': 'error',
-            'status_code': 500,
-            'detail': 'Internal server error, check UserManager logs',
-        }
