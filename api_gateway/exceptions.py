@@ -20,7 +20,7 @@ admin_only_exception = HTTPException(
     detail="This content requires an administrator account"
 )  # JWT Token expired
 
-server_error_dict = {
+server_error = {
     'result': 'error',
     'status_code': 500,
     'detail': 'Internal server error, check API Gateway logs',

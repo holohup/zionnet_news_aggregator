@@ -27,3 +27,17 @@ class Request(BaseModel):
 class UpdateNewsRequest(Request):
     subject: str = 'update_news'
     detail: Tags
+
+
+class News(BaseModel):
+    summary: str | None = None
+    title: str
+    url: str
+    id: int
+    text: str
+    publish_date: str
+
+
+class NewNewsResponse(BaseModel):
+    last_news_time: str
+    news: list[News]

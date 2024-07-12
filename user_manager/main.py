@@ -76,7 +76,7 @@ def create_token(request: InvokeMethodRequest) -> InvokeMethodResponse:
 @app.subscribe(config.grpc.pubsub, config.grpc.topic)
 def updates_from_ai(event: v1.Event):
     data = json.loads(event.Data())
-    logger.info(f'Received event: {data}')
+    logger.info('Received event')
     if not data.get('recipient') == 'user_manager':
         logger.info('Not for user_manager')
         return

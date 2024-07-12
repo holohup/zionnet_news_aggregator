@@ -18,6 +18,7 @@ class GRPCConfig:
     ai: ServiceConfig
     db_accessor_app_id: str
     port: int
+    tg: ServiceConfig
 
 
 @dataclass
@@ -40,6 +41,7 @@ def load_config():
             ai=ServiceConfig(app_id='ai_accessor', pubsub='pubsub', topic='ai_tasks'),
             db_accessor_app_id='db_accessor',
             port=50055,
+            tg=ServiceConfig(app_id='tg_accessor', pubsub='pubsub', topic='digest_report')
         ),
         news=NewsConfig(pause_between_updates_minutes=60),
     )

@@ -27,7 +27,7 @@ app: FastAPI = FastAPI(
     version='1.0.0'
 )
 u_manager = UserManager(app_id=config.grpc.user_manager_app_id, token_config=config.jwt)
-ai_manager = AI_Manager(config)
+ai_manager = AI_Manager(config.grpc.ai_manager_pubsub, config.grpc.ai_manager_topic)
 
 
 @app.post('/user/register')
@@ -79,8 +79,11 @@ async def create_digest(current_user: Annotated[User, Depends(u_manager.get_curr
     # """Endpoint that launches the digest creation sequence."""
 
     logger.info(f'Received digest request for {current_user.email}')
-    await ai_manager.create_digest(current_user)
-    return {'result': 'Your digest will be delivered shortly.'}
+    result = await ai_manager.create_digest(current_user)
+    if result is None:
+        return {'result': 'Your digest will be delivered shortly'}
+    status_code = result.pop('status_code')
+    return JSONResponse(content=result, status_code=status_code)
 
 
 @app.get('/user/info/{user_email}')

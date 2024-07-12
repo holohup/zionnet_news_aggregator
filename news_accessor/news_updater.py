@@ -1,11 +1,10 @@
-import json
 import worldnewsapi
 from worldnewsapi.rest import ApiException
 from worldnewsapi.models.search_news200_response import SearchNews200Response
 import logging
 
 from config import ParsingConfig
-from schema import ParseSettings, Tags, UpdateNewsRequest
+from schema import ParseSettings, Tags
 
 
 logger = logging.getLogger(__name__)
@@ -89,8 +88,6 @@ class NewsUpdater:
 
     def update_news(self, request: Tags):
         tags_list = [tag.strip() for tag in request.tags.split(',')]
-        logger.info(tags_list)
-        logger.info(type(tags_list))
         tags_bunches = self._split_tags(tags_list)
         pub_date = self._storage.get_latest_entry_time()
         all_news = self._collect_news(tags_bunches, pub_date)
@@ -100,13 +97,11 @@ class NewsUpdater:
         params = {'text': bunch, 'number': self._config.max_entries}
         config = ParseSettings(**params).dict
         config.update({'earliest_publish_date': pub_date})
-        logger.info(f'Parsing finished: {config}')
+        logger.info(f'Config preparation finished: {config}')
         return config
 
     def _split_tags(self, tags: list[str], max_length=100):
         logger.info('Separating tags to bunches')
-        logger.info(tags)
-        logger.info(type(tags))
         result = []
         current_bunch = ''
         separator = ' OR '
