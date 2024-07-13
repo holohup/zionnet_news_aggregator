@@ -15,7 +15,7 @@ from schema import (RegistrationRequest, Token, TokenRequest,
 from service_pinger import all_other_services_alive
 from utils import obfuscate_password
 
-from ai_manager import AI_Manager
+from news_aggregation_manager import News_Aggregation_Manager
 from user_manager import UserManager
 
 config = load_config()
@@ -28,7 +28,9 @@ app: FastAPI = FastAPI(
     version='1.0.0'
 )
 u_manager = UserManager(app_id=config.grpc.user_manager_app_id, token_config=config.jwt)
-ai_manager = AI_Manager(config.grpc.ai_manager_pubsub, config.grpc.ai_manager_topic)
+news_aggregation_manager = News_Aggregation_Manager(
+    config.grpc.news_aggregation_manager_pubsub, config.grpc.news_aggregation_manager_topic
+)
 
 
 @app.post('/user/register')
@@ -80,7 +82,7 @@ async def create_digest(current_user: Annotated[User, Depends(u_manager.get_curr
     # """Endpoint that launches the digest creation sequence."""
 
     logger.info(f'Received digest request for {current_user.email}')
-    result = await ai_manager.create_digest(current_user)
+    result = await news_aggregation_manager.create_digest(current_user)
     if result is None:
         return {'result': 'Your digest will be delivered shortly'}
     status_code = result.pop('status_code')

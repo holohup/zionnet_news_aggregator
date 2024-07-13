@@ -64,7 +64,7 @@ logging_config = {
         },
         'file': {
             'class': 'logging.FileHandler',
-            'filename': 'log/ai_manager.log',
+            'filename': 'log/news_aggregation_manager.log',
             'mode': 'a',
             'level': 'DEBUG',
             'formatter': 'default',

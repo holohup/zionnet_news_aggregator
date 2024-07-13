@@ -36,8 +36,8 @@ app = App()
 def consumer(event: v1.Event):
     data = json.loads(event.Data())
     logger.info('Received event.')
-    if data.get('recipient') != 'ai_manager':
-        logger.info('Not for ai_manager')
+    if data.get('recipient') != 'news_aggregation_manager':
+        logger.info('Not for news_aggregation_manager')
         return
     try:
         message_processor = parse_details[data['subject']]
@@ -79,5 +79,5 @@ async def main():
 
 
 if __name__ == '__main__':
-    logger.info('Starting AIManager')
+    logger.info('Starting NewsAggregationManager')
     asyncio.run(main())

@@ -52,7 +52,7 @@ def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
         filenames=FilenamesConfig(latest_update_filename='news/latest_update.json', news_filename='news/news.json'),
-        parsing=ParsingConfig(max_entries=100, news_expiration_hours=timedelta(hours=24), api_key=api_key),
+        parsing=ParsingConfig(max_entries=100, news_expiration_hours=timedelta(hours=24 * 7), api_key=api_key),
         grpc=GRPCSettings(topic='news_tasks', port=50052, pubsub='pubsub')
     )
 

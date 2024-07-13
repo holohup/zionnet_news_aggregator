@@ -6,7 +6,7 @@ from schema import CreateDigestRequest, User
 logger = logging.getLogger(__name__)
 
 
-class AI_Manager:
+class News_Aggregation_Manager:
     def __init__(self, pubsub, topic) -> None:
         self._pubsub = pubsub
         self._topic = topic

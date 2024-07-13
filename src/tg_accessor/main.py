@@ -108,7 +108,5 @@ async def main():
         logger.info('Service cancelled')
 
 
-
-
 if __name__ == '__main__':
     asyncio.run(main())

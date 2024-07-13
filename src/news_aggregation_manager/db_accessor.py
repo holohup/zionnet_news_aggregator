@@ -26,3 +26,4 @@ class DB_Accessor:
         if response['result'] == 'error':
             logger.error('Could not update db')
             return response
+        return None

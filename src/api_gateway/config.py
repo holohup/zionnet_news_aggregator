@@ -11,8 +11,8 @@ class LoggingConfig:
 @dataclass
 class GRPCConfig:
     user_manager_app_id: str
-    ai_manager_pubsub: str
-    ai_manager_topic: str
+    news_aggregation_manager_pubsub: str
+    news_aggregation_manager_topic: str
 
 @dataclass
 class JTWConfig:
@@ -31,7 +31,7 @@ class Config:
 def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
-        grpc=GRPCConfig(user_manager_app_id='user_manager', ai_manager_pubsub='pubsub', ai_manager_topic='ai_tasks'),
+        grpc=GRPCConfig(user_manager_app_id='user_manager', news_aggregation_manager_pubsub='pubsub', news_aggregation_manager_topic='ai_tasks'),
         jwt=configure_token(store_name='localsecretstore')
     )
 

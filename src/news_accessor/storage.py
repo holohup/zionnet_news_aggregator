@@ -96,7 +96,7 @@ class FileStorage(Storage):
 
     def get_all_news_after_strtime(self, strtime: str):
         if not strtime:
-            dt = self._get_dt_from_the_past(24)
+            dt = self._get_dt_from_the_past(24 * 7)
         else:
             dt = self._dt_from_pd(strtime)
         logger.info(f'Fetching all news from {dt}')

@@ -28,6 +28,22 @@ class UserRepository(ABC):
     def get_user(self, email: str):
         pass
 
+    @abstractmethod
+    def update_settings(self, request: dict):
+        pass
+
+    @abstractmethod
+    def get_password_hash(self, email: str) -> str:
+        pass
+
+    @abstractmethod
+    def get_all_user_tags(self) -> str:
+        pass
+
+    @abstractmethod
+    def update_timestamp(self, data: dict) -> User:
+        pass
+
 
 class RedisUserRepository(UserRepository):
     """A layer between the database and main to incapsulate the details."""
@@ -90,29 +106,3 @@ class RedisUserRepository(UserRepository):
 
     def _get_all_emails(self) -> list[str]:
         return [email.lstrip(self._prefix) for email in self._r.scan_iter(self._prefix+'*')]
-
-    # def store(self, k: str, v: str):
-    #     self._r.set(k, json.dumps(v))
-
-    # def fetch_single_value(self, k: str):
-    #     value = self._r.get(k)
-    #     if value:
-    #         return json.loads(str(value))
-    #     return None
-
-    # def store_to_set(self, k: str, v: list):
-    #     items = [json.dumps(item) for item in v]
-    #     self._r.sadd(k, *items)
-
-    # def fetch_list_by_key(self, k: str):
-    #     return self._r.smembers(k)
-
-    # def key_exists(self, k: str):
-    #     return self._r.exists(k)
-
-    # def drop_by_prefix(self, prefix: str):
-    #     for key in self._r.scan_iter(prefix + '*'):
-    #         self._r.delete(key)
-
-    # def list_all_available_keys(self) -> list[str]:
-    #     return self._r.keys('*')

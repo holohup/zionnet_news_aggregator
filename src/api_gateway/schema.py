@@ -1,12 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 class RegistrationRequest(BaseModel):
     email: EmailStr
     password: str
-    contact_info: str = ''
+    contact_info: str
     info: str
 
     @field_validator('password', mode='after')
@@ -85,6 +85,6 @@ class UpdateUserSettingsRequest(BaseModel):
 
 
 class CreateDigestRequest(BaseModel):
-    recipient: str = 'ai_manager'
+    recipient: str = 'news_aggregation_manager'
     subject: str = 'create_digest'
     email: str
