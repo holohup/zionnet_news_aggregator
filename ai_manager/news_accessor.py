@@ -1,10 +1,10 @@
 import json
 import logging
 
-from schema import UpdateNewsRequest, Tags, News, NewNewsResponse
-from invokers import publish_message, invoke_method, invoke_method_sync
-
 from config import GRPCConfig
+from invokers import invoke_method, invoke_method_sync, publish_message
+from schema import NewNewsResponse, Tags, UpdateNewsRequest
+
 logger = logging.getLogger(__name__)
 
 

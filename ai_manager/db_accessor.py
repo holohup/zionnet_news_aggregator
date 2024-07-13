@@ -1,7 +1,8 @@
 import json
 import logging
-from schema import UserResponse
+
 from invokers import invoke_method_sync
+from schema import UserResponse
 
 logger = logging.getLogger(__name__)
 

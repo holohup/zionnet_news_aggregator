@@ -1,8 +1,9 @@
 import logging
 from typing import NamedTuple
-from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
+
 from config import AIConfig
 from schema import CreateDigestAIRequest, DigestEntry
+from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 
 logger = logging.getLogger(__name__)
 

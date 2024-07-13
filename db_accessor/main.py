@@ -1,25 +1,19 @@
-from typing import Any
-from pydantic_core import from_json
-from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
-from redis.exceptions import ConnectionError
-import redis
 import logging
 import logging.config
+from typing import Any
 
 from config import load_config
+from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+from pydantic_core import from_json
+from redis.exceptions import ConnectionError
 from repository import RedisUserRepository
+from responses import (created_response, exception_response, exists_response,
+                       hash_response, user_deleted_response,
+                       user_info_response, user_not_found,
+                       user_time_updated_response)
 from schema import UserWithEmail
-from responses import (
-    exists_response,
-    created_response,
-    exception_response,
-    hash_response,
-    user_deleted_response,
-    user_not_found,
-    user_info_response,
-    user_time_updated_response
-)
 
+import redis
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)

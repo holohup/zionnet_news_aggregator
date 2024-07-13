@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-from dapr.clients import DaprClient
 import os
+from dataclasses import dataclass
 from datetime import timedelta
 
+from dapr.clients import DaprClient
 
 DEBUG = str(os.getenv('DEBUG', False)).lower() in ('true', 'yes', '1', 'debug')
 

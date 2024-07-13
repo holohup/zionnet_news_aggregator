@@ -1,5 +1,4 @@
-from fastapi import status, HTTPException
-
+from fastapi import HTTPException, status
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,

@@ -1,5 +1,6 @@
-import logging
 import asyncio
+import logging
+
 from dapr.aio.clients import DaprClient
 
 logger = logging.getLogger(__name__)

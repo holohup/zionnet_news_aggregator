@@ -1,8 +1,9 @@
 import logging
 
-from schema import GenerateTagsRequest, UserResponse, NewNewsResponse, CreateDigestAIRequest
-from invokers import publish_message, publish_message_sync
 from config import ServiceConfig
+from invokers import publish_message, publish_message_sync
+from schema import (CreateDigestAIRequest, GenerateTagsRequest,
+                    NewNewsResponse, UserResponse)
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,8 @@
 import logging
 
 from config import GRPCConfig
-from schema import GenerateTagsRequest
-
 from dapr.clients import DaprClient, DaprInternalError
+from schema import GenerateTagsRequest
 
 logger = logging.getLogger(__name__)
 

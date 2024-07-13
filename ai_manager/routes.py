@@ -1,5 +1,6 @@
-from schema import CreateDigestAIResponse, CreateDigestRequest, Message
 from typing import Callable, NamedTuple
+
+from schema import CreateDigestAIResponse, CreateDigestRequest, Message
 
 
 class MessageParser(NamedTuple):

@@ -1,13 +1,13 @@
 import json
 import logging
 import logging.config
-from cloudevents.sdk.event import v1
-from dapr.ext.grpc import App, InvokeMethodResponse, InvokeMethodRequest
 
+from cloudevents.sdk.event import v1
 from config import load_config
-from storage import FileStorage
-from schema import UpdateNewsRequest, News, NewNewsResponse
+from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
 from news_updater import NewsUpdater
+from schema import NewNewsResponse, News, UpdateNewsRequest
+from storage import FileStorage
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)

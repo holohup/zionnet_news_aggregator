@@ -1,8 +1,8 @@
 import os
 import re
 from dataclasses import dataclass
-from dapr.clients import DaprClient
 
+from dapr.clients import DaprClient
 
 DEBUG = str(os.getenv('DEBUG', False)).lower() in ('true', 'yes', '1', 'on')
 

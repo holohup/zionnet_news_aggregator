@@ -1,6 +1,6 @@
-from schema import DB_Accessor_Response, User, UserResponse
 from http import HTTPStatus
 
+from schema import DB_Accessor_Response, User, UserResponse
 
 exists_response = DB_Accessor_Response(
     **{

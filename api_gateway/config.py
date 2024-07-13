@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from dapr.clients import DaprClient
 
+
 @dataclass
 class LoggingConfig:
     settings: dict

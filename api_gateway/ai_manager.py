@@ -1,9 +1,7 @@
 import logging
 
-from schema import User
 from invokers import publish_message
-
-from schema import CreateDigestRequest
+from schema import CreateDigestRequest, User
 
 logger = logging.getLogger(__name__)
 

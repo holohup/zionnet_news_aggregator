@@ -1,6 +1,5 @@
 import json
 
-
 server_error = json.dumps(
     {
         'result': 'error',

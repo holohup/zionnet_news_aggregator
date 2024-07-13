@@ -1,14 +1,18 @@
-from datetime import datetime
 import json
 import logging
+from datetime import datetime
+
+import jwt
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-import jwt
-from pydantic import ValidationError
-from exceptions import credentials_exception, token_expired_exception
-from schema import TokenPayload, User, UpdateUserSettingsRequest, RegistrationRequest
 from invokers import invoke_grpc_method
+from pydantic import ValidationError
+from schema import (RegistrationRequest, TokenPayload,
+                    UpdateUserSettingsRequest, User)
+
+from exceptions import credentials_exception, token_expired_exception
+
 
 logger = logging.getLogger(__name__)
 

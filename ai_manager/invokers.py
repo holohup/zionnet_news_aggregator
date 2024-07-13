@@ -1,5 +1,6 @@
-import logging
 import json
+import logging
+
 from dapr.aio.clients import DaprClient, DaprInternalError
 from dapr.clients import DaprClient as DaprSyncClient
 from dapr.ext.grpc import InvokeMethodResponse

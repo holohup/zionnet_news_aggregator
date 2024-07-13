@@ -2,20 +2,16 @@ import json
 import logging
 import logging.config
 
-from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
 from cloudevents.sdk.event import v1
 from config import load_config
+from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+from id_accountant import IDAccountant
+from schema import (GenerateTagsResponse, RegistrationRequest,
+                    UpdateUserSettingsRequest, UserSettings)
+from security import replace_password_with_hash_in_user_data
+
 from ai_accessor import AI_Accessor
 from db_accessor import DB_Accessor
-from security import replace_password_with_hash_in_user_data
-from schema import (
-    GenerateTagsResponse,
-    RegistrationRequest,
-    UpdateUserSettingsRequest,
-    UserSettings,
-)
-from id_accountant import IDAccountant
-
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)

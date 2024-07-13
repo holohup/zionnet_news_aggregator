@@ -1,18 +1,14 @@
 import logging
+
 from config import ServiceConfig
-from schema import (
-    CreateDigestAIResponse,
-    CreateDigestRequest,
-    NewNewsResponse,
-    ReporterRequest,
-    UserResponse,
-)
-from db_accessor import DB_Accessor
-from ai_accessor import AI_Accessor
-from news_accessor import News_Accessor
 from id_accountant import IDAccountant
 from invokers import publish_message_sync
+from schema import (CreateDigestAIResponse, CreateDigestRequest,
+                    NewNewsResponse, ReporterRequest, UserResponse)
 
+from ai_accessor import AI_Accessor
+from db_accessor import DB_Accessor
+from news_accessor import News_Accessor
 
 logger = logging.getLogger(__name__)
 

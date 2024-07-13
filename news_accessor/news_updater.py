@@ -1,11 +1,10 @@
-import worldnewsapi
-from worldnewsapi.rest import ApiException
-from worldnewsapi.models.search_news200_response import SearchNews200Response
 import logging
 
+import worldnewsapi
 from config import ParsingConfig
 from schema import ParseSettings, Tags
-
+from worldnewsapi.models.search_news200_response import SearchNews200Response
+from worldnewsapi.rest import ApiException
 
 logger = logging.getLogger(__name__)
 

@@ -1,16 +1,18 @@
-import threading
-from cloudevents.sdk.event import v1
 import asyncio
+import json
 import logging
 import logging.config
+import threading
+
+from ai_services import AI
+from cloudevents.sdk.event import v1
+from config import DEBUG, configure_env_variables, load_config
+from dapr.clients import DaprClient
 from dapr.clients.exceptions import DaprInternalError
 from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
-import json
+from schema import (CreateDigestAIRequest, CreateDigestAIResponse, DigestEntry,
+                    GenerateTagsRequest, GenerateTagsResponse)
 from semantic_kernel import Kernel
-from ai_services import AI
-from schema import GenerateTagsRequest, GenerateTagsResponse, CreateDigestAIRequest, CreateDigestAIResponse, DigestEntry
-from config import load_config, configure_env_variables, DEBUG
-from dapr.clients import DaprClient
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)

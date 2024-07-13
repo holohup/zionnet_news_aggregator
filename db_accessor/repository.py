@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from typing import Any
 
 from pydantic_core import from_json
-from redis import Redis
-
 from schema import User, UserSettings, UserWithEmail
+
+from redis import Redis
 
 logger = logging.getLogger(__name__)
 

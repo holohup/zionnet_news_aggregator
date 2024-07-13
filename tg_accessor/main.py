@@ -3,15 +3,16 @@ import json
 import logging
 import logging.config
 import threading
+from queue import Empty, Queue
 from typing import NamedTuple
-from queue import Queue, Empty
+
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
-from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
 from cloudevents.sdk.event import v1
 from config import load_config
-from formatting import split_news_into_chunks, format_telegram_message
+from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+from formatting import format_telegram_message, split_news_into_chunks
 
 
 class DigestItem(NamedTuple):

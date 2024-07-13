@@ -1,22 +1,22 @@
 # The API gateway provides REST API for the service - it validates the requests, performs authorization and
 # authentification, and makes sure the validated requests are forwarded to the right Managers
 
+import logging
+import logging.config
 from typing import Annotated
 
-from fastapi import FastAPI, status, Depends
-from fastapi.responses import JSONResponse, Response
-
-import logging.config
-import logging
-
-from exceptions import admin_only_exception
-from schema import RegistrationRequest, Token, TokenRequest, User, UserSettings, UpdateUserSettingsRequest
-from utils import obfuscate_password
 from config import load_config
+from exceptions import admin_only_exception
+from fastapi import Depends, FastAPI, status
+from fastapi.responses import JSONResponse, Response
 from oauth_email import PasswordRequestForm
-from user_manager import UserManager
-from ai_manager import AI_Manager
+from schema import (RegistrationRequest, Token, TokenRequest,
+                    UpdateUserSettingsRequest, User, UserSettings)
 from service_pinger import all_other_services_alive
+from utils import obfuscate_password
+
+from ai_manager import AI_Manager
+from user_manager import UserManager
 
 config = load_config()
 logging.config.dictConfig(config.logging.settings)
@@ -95,7 +95,7 @@ async def get_user_info(current_user: Annotated[User, Depends(u_manager.get_curr
     if not current_user.is_admin:
         logger.info('Access to see user data denied due to lack of privileges')
         raise admin_only_exception
-    result = await u_manager.get_user(user_email)
+    result = await u_manager.get_user(user_email.lower())
     status_code = result.pop('status_code')
     return JSONResponse(content=result, status_code=status_code)
 
@@ -125,12 +125,16 @@ async def create_token(request: TokenRequest):
 async def read_users_me(
     current_user: Annotated[dict, Depends(u_manager.get_current_user)],
 ) -> User:
+    """Info about current user."""
+
     logger.info('Servicing a get current user request.')
     return current_user
 
 
 @app.get('/ping', include_in_schema=False)
 async def ping_all_other_services():
+    """Pings 6 other services to check if they are up."""
+
     logger.info('Pinging all services')
     result = await all_other_services_alive()
     if not result:

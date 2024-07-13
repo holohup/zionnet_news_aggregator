@@ -1,6 +1,6 @@
 import pytest
-from setup import user_endpoint_url
 from httpx import Client
+from setup import user_endpoint_url
 
 
 @pytest.fixture
@@ -16,6 +16,13 @@ def test_user_data(test_user_email):
 @pytest.fixture
 def admin_json():
     return {'email': 'saba_eliezer@doar.co.il', 'password': 'this_is_a_test_password', 'info': 'I am a test user'}
+
+
+@pytest.fixture
+def tag_gen_user_credentials_json():
+    return {'email': 'Joshua@cnn.com', 'password': 'this_is_a_test_password', 'info': "I'm John Grayson, and I'm a recent college graduate with a Bachelor's Degree in Web Design. I'm seeking a full-time opportunity where I can employ my programming skills."}
+
+
 
 
 @pytest.fixture

@@ -2,18 +2,20 @@ import asyncio
 import json
 import logging
 import logging.config
+import threading
+
+from cloudevents.sdk.event import v1
+from config import load_config
 from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+from id_accountant import IDAccountant
 from pydantic import ValidationError
-from utils import all_accessors_are_up
-from news_accessor import News_Accessor
+
 from ai_accessor import AI_Accessor
 from db_accessor import DB_Accessor
-from config import load_config
-import threading
-from cloudevents.sdk.event import v1
-from routes import parse_details
-from id_accountant import IDAccountant
+from news_accessor import News_Accessor
 from processors import MessageProcessor
+from routes import parse_details
+from utils import all_accessors_are_up
 
 
 config = load_config()
@@ -59,7 +61,7 @@ async def news_updater(pause_minutes: int):
     logger.info(f'Starting news updater, updates are scheduled every {pause_minutes} minutes')
     while True:
         try:
-            # await news_accessor.update_news()
+            await news_accessor.update_news()
             await asyncio.sleep(pause_minutes * 60)
         except Exception as e:
             logger.exception(e)

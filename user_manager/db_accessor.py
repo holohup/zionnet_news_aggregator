@@ -3,16 +3,17 @@
 import json
 import logging
 
-
 from dapr.clients import DaprClient
-from dapr.clients.grpc._response import InvokeMethodResponse
 from dapr.clients.exceptions import DaprInternalError
-
-from security import verify_password, create_access_token
-from ai_accessor import AI_Accessor
-from responses import server_error, token_response, hash_error, credentials_error
-from schema import RegistrationRequest, UserRegistrationSettings, UserWithEmail
+from dapr.clients.grpc._response import InvokeMethodResponse
 from id_accountant import IDAccountant
+from responses import (credentials_error, hash_error, server_error,
+                       token_response)
+from schema import RegistrationRequest, UserRegistrationSettings, UserWithEmail
+from security import create_access_token, verify_password
+
+from ai_accessor import AI_Accessor
+
 logger = logging.getLogger(__name__)
 
 
