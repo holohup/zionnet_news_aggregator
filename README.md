@@ -100,7 +100,7 @@ The service remembers the last news processed, so if you immediately request ano
 ## How to test
 
 - There're some integration tests included. They check if the microservices interact with each other correctly.
-    1. Make sure you have Python (tested with 3.11) installed.
+    1. Make sure you have Python (tested with 3.8 and 3.11, so at least any 3.8+ should work) installed.
     2. Create a virtual environment, install the dependencies from requirements.txt in the root of the project folder:
     ```sh
     python3.11 -m venv venv && source venv/bin/activate && pip install -r tests/requirements.txt

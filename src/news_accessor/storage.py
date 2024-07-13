@@ -80,7 +80,7 @@ class FileStorage(Storage):
 
     def get_latest_entry_time(self, format: str = ''):
         if not os.path.exists(self._config.latest_update_filename):
-            publish_date = self._get_dt_from_the_past(24)
+            publish_date = self._get_dt_from_the_past(24 * 2)
         else:
             with open(self._config.latest_update_filename, 'r') as file:
                 result = json.load(file)
