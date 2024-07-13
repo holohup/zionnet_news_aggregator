@@ -25,7 +25,7 @@ Let's jump right into it. A set of microservices which save users' preferences a
 
 The service consists of 7 microservices in separate containers as shown in the diagram.
 
-![application scheme](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/scheme.png?raw=true)
+![application scheme](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/diagram.png?raw=true)
 
 A **DAPR sidecar** is riding next to each container, helping with *service discovery*, *secrets storage*, *sync*, and *async* communications using gRPC and Message Queue. It takes care of message delivery retries and a lot of other under-the-hood details. Nearly every action is logged, which tremendously helps with debugging. The project also includes some integration tests to verify everything is working after startup.
 
@@ -61,11 +61,11 @@ You need to provide your email (used as a unique identifier for each user), pass
     2. Again with the help of AI, both the description and tags are used to validate the news and choose only the most interesting ones.
 When you press the 'Execute' button, you will be registered instantly. In the background, a process will launch to fill out the tags for you. You can see that in the response (which fetches the user info from the DB), the 'tags' field in 'settings' is empty.
 
-![empty tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags?raw=true)
+![empty tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags.png?raw=true)
 
 This will change when you authorize in the next step. After that, you can check the 'me' endpoint.
 
-![filled tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags?raw=true)
+![filled tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true)
 
 If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
 
@@ -74,7 +74,7 @@ If you feel like your tags are misleading or don't describe you holistically, yo
 Luckily, the Swagger UI provides a way to do it in a browser without editing JSONs and continue using the service.
 - Scroll to the top of the page and click on the "Authorize" button in the top-right corner.
 
-![authorize button](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/authorize?raw=true)
+![authorize button](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/authorize.png?raw=true)
 
 - Enter your email in the 'Username' field and password in 'Password', click 'Authorize', and you're in.
 
