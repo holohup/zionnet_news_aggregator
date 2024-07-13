@@ -39,7 +39,7 @@ If you happen to have a spinning hard drive, it may make some noise while buildi
 
 ## Showcase scenario
 
-1. Start a chat in the Telegram Bot
+### 1. Start a chat in the Telegram Bot
 
 - [@zionnet_bot](https://t.me/zionnet_bot) - click on the link, or enter the bot name in Telegram Search. You will find it immediately.
 - Press the 'Start' button. The Bot will send you a response with your chat ID.
@@ -48,7 +48,7 @@ If you happen to have a spinning hard drive, it may make some noise while buildi
 
 This is the number you will need when registering - it is required to send you the news digest when you request it, so copy it to the clipboard.
 
-2. Register in the service
+### 2. Register in the service
 
 - Go to http://127.0.0.1:8000/docs/ - it is the Swagger interface for the REST API, which we will use. *It is handy to use another browser to be able to switch between these instructions and the API interface using ALT-Tab, without the need to switch between single browser tabs*.
 
@@ -69,7 +69,7 @@ This will change when you authorize in the next step. After that, you can check 
 
 If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
 
-3. Authorize with your credentials and get a JWT token.
+### 3. Authorize with your credentials and get a JWT token.
 
 Luckily, the Swagger UI provides a way to do it in a browser without editing JSONs and continue using the service.
 - Scroll to the top of the page and click on the "Authorize" button in the top-right corner.
@@ -82,7 +82,7 @@ Now you can access all the endpoints except the ones restricted to admins only (
 
 You can also test token generation in the '/token' endpoint if you wish and use it to test the API using other instruments, such as Postman.
 
-4. *(optional)* Change your settings.
+### 4. *(optional)* Change your settings.
 
 You can tune the settings to your liking or continue as is. In '/user/update_settings', you can change four settings:
 
@@ -91,7 +91,7 @@ You can tune the settings to your liking or continue as is. In '/user/update_set
 - *max_sentences* - maximum number of sentences in each news summary the AI generates.
 - *max_news* - maximum number of news in each digest.
 
-5. Get that digest at last!
+### 5. Get that digest at last!
 
 Click on the '/digest' endpoint -> 'Try it out' -> Execute.
 You can enjoy the logs flow while waiting for the digest, but it should not take more than 10-20 seconds to receive your news digest from the Telegram bot.
