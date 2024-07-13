@@ -4,7 +4,8 @@ endpoints = {
     'delete': '/user/delete',
     'get': '/user/info',
     'token': '/token',
-    'ping': '/ping'
+    'ping': '/ping',
+    'me': '/user/me',
 }
 
 logs_to_check = ('logs/db_accessor.log', 'logs/api_gateway.log', 'logs/user_manager.log')

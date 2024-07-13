@@ -1,7 +1,7 @@
 services:  
   api_gateway:
     build:
-      context: api_gateway
+      context: src/api_gateway
     volumes:
       - ./logs:/app/log
     networks:
@@ -10,7 +10,7 @@ services:
       - 8000:8000
     depends_on:
       - user_manager
-      - ai_manager
+      - news_aggregation_manager
   api_gateway-dapr:
     image: "daprio/daprd:edge"
     deploy:
@@ -34,7 +34,7 @@ services:
 
   db_accessor:
     build:
-      context: db_accessor
+      context: src/db_accessor
     volumes:
       - ./logs:/app/log
     networks: 
@@ -66,7 +66,7 @@ services:
 
   news_accessor:
     build:
-      context: news_accessor
+      context: src/news_accessor
     volumes:
       - ./logs:/app/log
       - ./news:/app/news
@@ -96,7 +96,7 @@ services:
 
   ai_accessor:
     build:
-      context: ai_accessor
+      context: src/ai_accessor
     volumes:
       - ./logs:/app/log
     networks: 
@@ -126,7 +126,7 @@ services:
 
   user_manager:
     build:
-      context: user_manager
+      context: src/user_manager
     volumes:
       - ./logs:/app/log
     networks: 
@@ -156,19 +156,19 @@ services:
     network_mode: "service:user_manager"
 
 
-  ai_manager:
+  news_aggregation_manager:
     build:
-      context: ai_manager
+      context: src/news_aggregation_manager
     volumes:
       - ./logs:/app/log
-    networks: 
+    networks:
       - digester_network
     depends_on:
       - news_accessor
       - ai_accessor
       - db_accessor
       - tg_accessor
-  ai_manager-dapr:
+  news_aggregation_manager-dapr:
     image: "daprio/daprd:edge"
     deploy:
       restart_policy:
@@ -178,7 +178,7 @@ services:
         window: 120s
     command: [
       "./daprd",
-      "--app-id", "ai_manager",
+      "--app-id", "news_aggregation_manager",
       "--app-port", "50055",
       "--app-protocol", "grpc",
       "--resources-path", "./components"
@@ -187,13 +187,13 @@ services:
       - ./components:/components
       - ./secrets/secrets.json:/secrets.json
     depends_on:
-      - ai_manager
-    network_mode: "service:ai_manager"
+      - news_aggregation_manager
+    network_mode: "service:news_aggregation_manager"
 
 
   tg_accessor:
     build:
-      context: tg_accessor
+      context: src/tg_accessor
     volumes:
       - ./logs:/app/log
     networks: 

@@ -1,6 +1,7 @@
-import pytest
 from http import HTTPStatus
-from setup import user_endpoint_url, logs_to_check
+import time
+import pytest
+from setup import logs_to_check, user_endpoint_url
 
 
 @pytest.fixture
@@ -30,6 +31,16 @@ def test_Given_running_services_When_request_Then_logs_log_at_least_something(te
 def test_Given_running_services_When_pinging_PING_endpoint_Then_all_services_return_PONG(client):
     response = client.get(user_endpoint_url('ping'))
     assert response.json() == {'ok': 'all services up'}
+
+
+def test_Given_new_user_registration_When_at_first_there_are_no_tags_Then_after_a_few_moments_the_AI_generates_them_and_stores_in_DB(client, admin_client, tag_gen_user_credentials_json):
+    email = tag_gen_user_credentials_json['email']
+    response = client.post(user_endpoint_url('register'), json=tag_gen_user_credentials_json)
+    assert response.json()['detail']['settings']['tags'] == ''
+    time.sleep(3)
+    response = admin_client.get(user_endpoint_url('get', email))
+    admin_client.delete(user_endpoint_url('delete', email))
+    assert response.json()['detail']['settings']['tags'] != ''
 
 
 def file_contents(filename):
