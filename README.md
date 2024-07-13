@@ -24,6 +24,7 @@ Let's jump right into it. A set of microservices which save users' preferences a
 ### Bird’s-eye view
 
 The service consists of 7 microservices in separate containers as shown in the diagram.
+
 ![application scheme](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/scheme.png?raw=true)
 
 A **DAPR sidecar** is riding next to each container, helping with *service discovery*, *secrets storage*, *sync*, and *async* communications using gRPC and Message Queue. It takes care of message delivery retries and a lot of other under-the-hood details. Nearly every action is logged, which tremendously helps with debugging. The project also includes some integration tests to verify everything is working after startup.
@@ -42,7 +43,9 @@ If you happen to have a spinning hard drive, it may make some noise while buildi
 
 - [@zionnet_bot](https://t.me/zionnet_bot) - click on the link, or enter the bot name in Telegram Search. You will find it immediately.
 - Press the 'Start' button. The Bot will send you a response with your chat ID.
+
 ![bot response with id](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/bot.png?raw=true)
+
 This is the number you will need when registering - it is required to send you the news digest when you request it, so copy it to the clipboard.
 
 2. Register in the service
@@ -50,26 +53,29 @@ This is the number you will need when registering - it is required to send you t
 - Go to http://127.0.0.1:8000/docs/ - it is the Swagger interface for the REST API, which we will use. *It is handy to use another browser to be able to switch between these instructions and the API interface using ALT-Tab, without the need to switch between single browser tabs*.
 
 - Open the first '/user/register' endpoint and click on the 'Try it out' button.
+
 ![try it out](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/registration.png?raw=true)
+
 You need to provide your email (used as a unique identifier for each user), password (to generate a JWT token), contact info (currently - the former step Telegram Bot chat ID), and the self-description. The description is critical to how the service works - the more specific it is, the more tailored the news will be. Please try to specify as many details about yourself as you can. These details will be used:
     1. To generate tags, which are used to parse news that might interest you using AI.
     2. Again with the help of AI, both the description and tags are used to validate the news and choose only the most interesting ones.
 When you press the 'Execute' button, you will be registered instantly. In the background, a process will launch to fill out the tags for you. You can see that in the response (which fetches the user info from the DB), the 'tags' field in 'settings' is empty.
-<table>
-  <tr>
-    <td>![reg info](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/reginfo.png?raw=true)</td>
-    <td>![empty tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags?raw=true)</td>
-  </tr>
-</table>
+
+![empty tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags?raw=true)
+
 This will change when you authorize in the next step. After that, you can check the 'me' endpoint.
+
 ![filled tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags?raw=true)
+
 If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
 
 3. Authorize with your credentials and get a JWT token.
 
 Luckily, the Swagger UI provides a way to do it in a browser without editing JSONs and continue using the service.
 - Scroll to the top of the page and click on the "Authorize" button in the top-right corner.
+
 ![authorize button](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/authorize?raw=true)
+
 - Enter your email in the 'Username' field and password in 'Password', click 'Authorize', and you're in.
 
 Now you can access all the endpoints except the ones restricted to admins only (delete user, get info about the user).
@@ -97,7 +103,7 @@ The service remembers the last news processed, so if you immediately request ano
     1. Make sure you have Python (tested with 3.11) installed.
     2. Create a virtual environment, install the dependencies from requirements.txt in the root of the project folder:
     ```sh
-    python3.11 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+    python3.11 -m venv venv && source venv/bin/activate && pip install -r tests/requirements.txt
     ```
     3. Make sure you have your **docker compose up** running.
     4. Execute the tests:
@@ -132,6 +138,7 @@ This manager is responsible for the main functionality of the service. If it gro
 - creating the digest. It gets user info from **db_accessor**, stores user contact and email, and sends a message without them to the **ai_accessor**, containing just the user information and tags to generate the digest. When the digest is returned, knowing the user's ID in the message, it retrieves the contact information and sends a message with contact and digest to the **tg_accessor** to deliver the digest. Also, knowing the user's email, it sends a request to **db_accessor** to update the user's last read news timestamp.
 
 Therefore, it has access to and uses all four accessors in the service. The ultimate power!
+
 **!NB** In config.py
 ```python
 news=NewsConfig(pause_between_updates_minutes=60)
