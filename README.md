@@ -7,7 +7,7 @@ Let's jump right into it. A set of microservices which save user's preferences, 
 ### Techologies used
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
-![DAPR](https://img.shields.io/badge/DAPR-v1.8.0-blue?logo=dapr&logoColor=white)
+![DAPR](https://img.shields.io/badge/DAPR-blue?logo=dapr&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.95.2-green?logo=fastapi&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-20.10.12-blue?logo=docker&logoColor=white)
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-1.29.2-blue?logo=docker&logoColor=white)
