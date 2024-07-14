@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 class NewsEntry(NamedTuple):
     """A simple DTO for news entries."""
 
-
     url: str
     text: str
     summary: str
@@ -30,6 +29,8 @@ class AI:
         self._init_kernel()
 
     def _init_kernel(self):
+        """OpenAI kernel initialization."""
+
         logger.info(f'Initializing kernel. model = {self._config.model_id}')
         self._kernel.add_service(
             OpenAIChatCompletion(ai_model_id=self._config.model_id, service_id='chat-gpt')
@@ -51,7 +52,9 @@ class AI:
             logger.info('No news for today')
             return []
         news_by_id = {
-            n.id: NewsEntry(url=n.url, text=n.text, summary=n.summary, title=n.title) for n in request.news.news
+            n.id: NewsEntry(
+                url=n.url, text=n.text, summary=n.summary, title=n.title
+            ) for n in request.news.news
         }
         interesting_ids = await self._get_most_interesting_ids(request)
         if not interesting_ids:
@@ -65,7 +68,8 @@ class AI:
         return result
 
     async def _get_most_interesting_ids(self, request: CreateDigestAIRequest) -> list[int]:
-        """Polls the AI to find the ids of most interesting news from user info, tags and news titles and summaries."""
+        """Polls the AI to find the ids of most interesting news.
+        Uses user info, tags and news titles and summaries."""
 
         user_description = request.user.settings.info
         user_tags = request.user.settings.tags
@@ -84,4 +88,6 @@ class AI:
     async def _create_digest(self, input: str, amount_of_sentences: int) -> str:
         """Creates a digest from news text and max amount of sentences."""
 
-        return await self._kernel.invoke(self._plugin['digest'], input=input, amount_of_sentences=amount_of_sentences)
+        return await self._kernel.invoke(
+            self._plugin['digest'], input=input, amount_of_sentences=amount_of_sentences
+        )

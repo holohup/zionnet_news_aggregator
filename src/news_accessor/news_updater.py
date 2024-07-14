@@ -44,6 +44,7 @@ class NewsUpdater:
 
         news_list, available_news = self._fetch_news_page(config, api_instance)
         if not news_list:
+            logger.info('No news in the first page of results, not proceeding.')
             return []
 
         total_pages = available_news // config['number']
@@ -73,13 +74,14 @@ class NewsUpdater:
         all_news = []
         for tags_bunch in tags_bunches:
             news_list = self._process_tags_bunch(tags_bunch, pub_date)
-            if news_list:
-                all_news.extend(news_list)
-            else:
+            if not news_list:
                 logger.info(
                     'Stopping further processing due to API limit or empty response.'
                 )
                 break
+            all_news.extend(news_list)
+            logger.info(f'News list extender with {len(news_list)} new news')
+
         return all_news
 
     def _save_news(self, news_list):
