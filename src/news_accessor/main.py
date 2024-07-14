@@ -3,8 +3,9 @@ import logging
 import logging.config
 
 from cloudevents.sdk.event import v1
-from config import load_config
 from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+
+from config import load_config
 from news_updater import NewsUpdater
 from schema import NewNewsResponse, News, UpdateNewsRequest
 from storage import FileStorage
@@ -18,7 +19,9 @@ app: App = App()
 
 
 @app.subscribe(pubsub_name=config.grpc.pubsub, topic=config.grpc.topic)
-def update_news(event: v1.Event):
+def update_news_subscriber(event: v1.Event):
+    """Subscribes to the messages and waits for the update_news command to update news."""
+
     data = json.loads(event.Data())
     logger.info('Received new event')
     if data.get('recipient') != config.service_name:
@@ -38,12 +41,16 @@ def update_news(event: v1.Event):
 
 @app.method('ping')
 def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    """Returns a PONG when pinged."""
+
     logger.info('Received PING, returning PONG')
     return InvokeMethodResponse(data='PONG')
 
 
 @app.method('get_new_news')
 def get_new_news(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    """Returns all new news that have appeared after the specified time."""
+
     from_time = request.text()
     logger.info(f'Preparing new news from {from_time}')
     news = storage.get_all_news_after_strtime(from_time)
