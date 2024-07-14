@@ -30,14 +30,14 @@ class NewsUpdater:
         self._api_config.api_key['headerApiKey'] = key
 
     def _fetch_news_page(self, config, api_instance):
-        """Fetches a single response page, or returns an empty list, even on exception."""
 
+        """Fetches a single response page, or returns an empty list, even on exception."""
         try:
             response: SearchNews200Response = api_instance.search_news(**config)
             return (response.news, response.available) if response and response.available > 0 else ([], 0)
         except ApiException:
             logger.exception('Limit reached, nothing to parse :(')
-        return ([], 0)
+            return ([], 0)
 
     def _fetch_all_news_for_bunch(self, config, api_instance):
         """Fetches all news for a current bunch of tags"""
@@ -52,11 +52,10 @@ class NewsUpdater:
         for page in range(1, total_pages + 1):
             config['offset'] = page * config['number']
             logger.info(f'Parsing page {page}/{total_pages}')
-            news_page = self._fetch_news_page(config, api_instance)
+            news_page, _ = self._fetch_news_page(config, api_instance)
             if not news_page:
                 break
             news_list.extend(news_page)
-
         return news_list
 
     def _process_tags_bunch(self, tags_bunch, pub_date):
@@ -80,7 +79,7 @@ class NewsUpdater:
                 )
                 break
             all_news.extend(news_list)
-            logger.info(f'News list extender with {len(news_list)} new news')
+            logger.info(f'News list extended with {len(news_list)} new news')
 
         return all_news
 
@@ -94,8 +93,8 @@ class NewsUpdater:
             return
 
         logger.info(f'Finished collecting new entries, total {len(news_list)} news collected')
-        latest_news_date = max(news.publish_date for news in news_list)
-        final_data = [news.model_dump() for news in news_list]
+        latest_news_date = max(news.publish_date for news in news_list if hasattr(news, 'publish_date'))
+        final_data = [news.model_dump() for news in news_list if hasattr(news, 'model_dump')]
 
         logger.info('Deleting outdated entries')
         self._storage.delete_old_entries(self._config.news_expiration_hours)
