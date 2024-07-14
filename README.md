@@ -133,9 +133,13 @@ Deals with stuff related to users - CRUD operations, data to validate tokens. It
 
 ### news_aggregation_manager
 
-This manager is responsible for the main functionality of the service. If it grows any bigger, an engine should be extracted from it to a separate microservice (at least the processor class, which incorporates the business logic of digest generation). It is responsible for:
-- keeping the news database up to date. On startup and then periodically, it invokes a **news_accessor** method to parse new news and delete the old ones. First, it asks **db_accessor** for all the user tags from all users. Then passes the tags to the **news_accessor** to parse the news about those tags.
-- creating the digest. It gets user info from **db_accessor**, stores user contact and email, and sends a message without them to the **ai_accessor**, containing just the user information and tags to generate the digest. When the digest is returned, knowing the user's ID in the message, it retrieves the contact information and sends a message with contact and digest to the **tg_accessor** to deliver the digest. Also, knowing the user's email, it sends a request to **db_accessor** to update the user's last read news timestamp.
+This manager is responsible for the main functionality of the service. If it grows any bigger, an engine should be extracted from it to a separate microservice (at least the processor class, which incorporates the business logic of digest generation). The digest mechanism work is displayed in the following diagram.
+
+![empty tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/digest.png?raw=true)
+
+The manager gets user info from **db_accessor**, stores user contact and email, and sends a message without them to the **ai_accessor**, containing just the user information and tags to generate the digest. When the digest is returned, knowing the user's ID in the message, it retrieves the contact information and sends a message with contact and digest to the **tg_accessor** to deliver the digest. Also, knowing the user's email, it sends a request to **db_accessor** to update the user's last read news timestamp.
+
+Also this manager is responsible for keeping the news database up to date. On startup and then periodically, it invokes a **news_accessor** method to parse new news and delete the old ones. First, it asks **db_accessor** for all the user tags from all users. Then passes the tags to the **news_accessor** to parse the news about those tags.
 
 Therefore, it has access to and uses all four accessors in the service. The ultimate power!
 
