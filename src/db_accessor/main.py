@@ -100,5 +100,5 @@ def invoke_method(
 
 
 if __name__ == '__main__':
-    logger.info('Starting db_accessor')
+    logger.info(f'Starting {config.service_name}')
     app.run(config.grpc.port)

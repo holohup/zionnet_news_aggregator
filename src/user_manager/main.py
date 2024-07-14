@@ -73,8 +73,8 @@ def create_token(request: InvokeMethodRequest) -> InvokeMethodResponse:
 def updates_from_ai(event: v1.Event):
     data = json.loads(event.Data())
     logger.info('Received event')
-    if not data.get('recipient') == 'user_manager':
-        logger.info('Not for user_manager')
+    if not data.get('recipient') == config.service_name:
+        logger.info(f'Not for {config.service_name}')
         return
     if data.get('subject') == 'tags_response':
         response = GenerateTagsResponse.model_validate(data)
@@ -96,5 +96,5 @@ def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
 
 if __name__ == '__main__':
 
-    logger.info('Starting UserManager')
+    logger.info(f'Starting {config.service_name}')
     app.run(config.grpc.port)

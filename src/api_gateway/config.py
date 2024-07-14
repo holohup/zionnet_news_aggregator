@@ -26,13 +26,15 @@ class Config:
     logging: LoggingConfig
     grpc: GRPCConfig
     jwt: JTWConfig
+    service_name: str
 
 
 def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
         grpc=GRPCConfig(user_manager_app_id='user_manager', news_aggregation_manager_pubsub='pubsub', news_aggregation_manager_topic='ai_tasks'),
-        jwt=configure_token(store_name='localsecretstore')
+        jwt=configure_token(store_name='localsecretstore'),
+        service_name='api_gateway'
     )
 
 

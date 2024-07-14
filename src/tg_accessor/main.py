@@ -46,6 +46,9 @@ async def welcome_new_user(message: Message):
 
 async def send_digest_to_user(user_id: int, message: list[DigestItem]):
     logger.info('Sending result to user')
+    if not user_id:
+        logger.error('Cannot send a message to a user with no user chat id. Skipping.')
+        return
     if not message:
         await bot.send_message(chat_id=user_id, text='Sorry, no new news yet, come back later!')
     valid_chunks = split_news_into_chunks(news_list=message, max_len=config.bot.max_text_length)
@@ -60,7 +63,7 @@ def queue_listener(event: v1.Event) -> None:
     data = json.loads(event.Data())
     logger.info('Received event')
     if data['subject'] != 'report_ready':
-        logger.info('The event is not for tg_accessor')
+        logger.info(f'The event is not for {config.service_name}')
         return
     try:
         logger.info('Putting the message to bot sending queue')
@@ -109,4 +112,5 @@ async def main():
 
 
 if __name__ == '__main__':
+    logger.info(f'Starting {config.service_name}')
     asyncio.run(main())

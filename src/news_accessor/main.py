@@ -21,8 +21,8 @@ app: App = App()
 def update_news(event: v1.Event):
     data = json.loads(event.Data())
     logger.info('Received new event')
-    if data.get('recipient') != 'news_accessor':
-        logger.info('Not for news_accessor')
+    if data.get('recipient') != config.service_name:
+        logger.info(f'Not for {config.service_name}')
         return
 
     if data.get('subject') == 'update_news':
@@ -56,5 +56,5 @@ def get_new_news(request: InvokeMethodRequest) -> InvokeMethodResponse:
 
 
 if __name__ == '__main__':
-    logger.info('Starting News Accessor')
+    logger.info(f'Starting {config.service_name}')
     app.run(config.grpc.port)

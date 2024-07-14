@@ -38,6 +38,7 @@ class Config:
     filenames: FilenamesConfig
     parsing: ParsingConfig
     grpc: GRPCSettings
+    service_name: str
 
 
 def get_api_key(store_name: str, var: str):
@@ -53,7 +54,8 @@ def load_config():
         logging=LoggingConfig(logging_config),
         filenames=FilenamesConfig(latest_update_filename='news/latest_update.json', news_filename='news/news.json'),
         parsing=ParsingConfig(max_entries=100, news_expiration_hours=timedelta(hours=24 * 7), api_key=api_key),
-        grpc=GRPCSettings(topic='news_tasks', port=50052, pubsub='pubsub')
+        grpc=GRPCSettings(topic='news_tasks', port=50052, pubsub='pubsub'),
+        service_name='news_accessor'
     )
 
 
