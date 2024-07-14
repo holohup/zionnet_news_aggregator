@@ -33,7 +33,7 @@ class NewsUpdater:
         """Fetches a single response page, or returns an empty list, even on exception."""
 
         try:
-            response = api_instance.search_news(**config)
+            response: SearchNews200Response = api_instance.search_news(**config)
             return (response.news, response.available) if response and response.available > 0 else ([], 0)
         except ApiException:
             logger.exception('Limit reached, nothing to parse :(')

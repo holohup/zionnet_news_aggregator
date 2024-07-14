@@ -1,5 +1,4 @@
 import os
-import re
 from dataclasses import dataclass
 
 from dapr.clients import DaprClient

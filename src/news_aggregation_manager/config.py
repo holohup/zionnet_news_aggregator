@@ -12,6 +12,7 @@ class ServiceConfig:
     topic: str
     app_id: str
 
+
 @dataclass
 class GRPCConfig:
     news: ServiceConfig

@@ -10,17 +10,22 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
 from cloudevents.sdk.event import v1
-from config import load_config
 from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
+
+from config import load_config
 from formatting import format_telegram_message, split_news_into_chunks
 
 
 class DigestItem(NamedTuple):
+    """Digest item - text + url."""
+
     text: str
     url: str
 
 
 class UserMessage(NamedTuple):
+    """User message - chat id to send to and the digest."""
+
     chat_id: int
     digest: list[DigestItem]
 
@@ -36,7 +41,9 @@ q = Queue()
 
 
 @dp.message(Command(commands='start'))
-async def welcome_new_user(message: Message):
+async def welcome_new_user(message: Message) -> None:
+    """Welcomes the new user and returns the chat id."""
+
     logger.info(f'User {message.from_user.id} did a /start, answering.')
     await message.answer(
         f'Welcome to the Zion-net homework bot! Your chat id is {message.from_user.id}\n'
@@ -44,7 +51,9 @@ async def welcome_new_user(message: Message):
     )
 
 
-async def send_digest_to_user(user_id: int, message: list[DigestItem]):
+async def send_digest_to_user(user_id: int, message: list[DigestItem]) -> None:
+    """Sends the digest to a specific chat id."""
+
     logger.info('Sending result to user')
     if not user_id:
         logger.error('Cannot send a message to a user with no user chat id. Skipping.')
@@ -60,6 +69,8 @@ async def send_digest_to_user(user_id: int, message: list[DigestItem]):
 
 @app.subscribe(pubsub_name=config.service.pubsub, topic=config.service.topic)
 def queue_listener(event: v1.Event) -> None:
+    """Subscribes to the reports pubsub."""
+
     data = json.loads(event.Data())
     logger.info('Received event')
     if data['subject'] != 'report_ready':
@@ -75,11 +86,15 @@ def queue_listener(event: v1.Event) -> None:
 
 @app.method('ping')
 def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
+    """Returns a PONG when pinged."""
+
     logger.info('Received PING, returning PONG')
     return InvokeMethodResponse(data='PONG')
 
 
-async def listener(q: Queue):
+async def listener(q: Queue) -> None:
+    """The listener listens to the Queue to send messages."""
+
     logging.info('Starting Queue listener')
     while True:
         try:
@@ -92,11 +107,16 @@ async def listener(q: Queue):
 
 
 def run_dapr():
+    """Runs dapr."""
+
     logger.info('Launching DAPR')
     app.run(config.grpc_port)
 
 
-async def main():
+async def main() -> None:
+    """The startup routine.
+    Thread for dapr, event loop for queue listener and telegram bot."""
+
     loop = asyncio.get_event_loop()
     from signal import SIGINT, SIGTERM
     dapr_thread = threading.Thread(target=run_dapr, daemon=True)

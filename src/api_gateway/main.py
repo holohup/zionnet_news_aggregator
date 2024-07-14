@@ -102,7 +102,11 @@ async def get_user_info(
     return JSONResponse(content=result, status_code=status_code)
 
 
-@app.post('/login', summary='Hidden endpoint for Swagger auth integration', response_model=Token, include_in_schema=False)
+@app.post(
+        '/login', summary='Hidden endpoint for Swagger auth integration',
+        response_model=Token,
+        include_in_schema=False
+)
 async def generate_token(req_data: PasswordRequestForm = Depends()) -> Token:
     """Create a token for FastAPI's Swagger UI"""
 
