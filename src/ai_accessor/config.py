@@ -50,7 +50,7 @@ def load_config():
         logging=LoggingConfig(logging_config),
         grpc=GRPCConfig(topic='ai_tasks', port=50053, pubsub='pubsub'),
         secrets=SecretsConfig(store_name='localsecretstore'),
-        ai=AIConfig(model_id='gpt-3.5-turbo'),
+        ai=AIConfig(model_id='gpt-4o'),
         service_name='ai_accessor'
     )
 

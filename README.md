@@ -116,7 +116,7 @@ For more in-depth testing, you would need to dive deeper into the application me
 
 ## Details and components highlights
 
-All services follow more or less the same structure. There's a *main.py* file which is an entrypoint, a *config.py* which defines how the service behaves and some constants needed for it to function. When the microservice is big enough, it usually has a layer of abstraction to make both higher-level modules and low-level implementations depend on it. The only exception is the report sender service, telegram accessor, which is so small it has nearly everything in main.py. All code is available in the *src* folder.
+All services follow more or less the same structure. There's a *main.py* file which is an entrypoint, a *config.py* which defines how the service behaves and some constants needed for it to function. When the microservice is big enough, it usually has a layer of abstraction to make both higher-level modules and low-level implementations depend on it. The only exception is the report sender service, telegram accessor, which is so small it has nearly everything in main.py. All code is available in the `src` folder.
 
 ### api_gateway
 
@@ -170,9 +170,9 @@ When there are thousands of news articles, churning through the full text of eac
 Given that the service can be slow, all communications with it are asynchronous.
 In the config.py 
 ```python
-ai=AIConfig(model_id='gpt-3.5-turbo')
+ai=AIConfig(model_id='gpt-4o')
 ```
-it is worth playing with; the **gpt-4o** model is also available, but I haven't tested it yet. The folder *src/ai_accessor/prompt_templates/DigestPlugin* contains the prompts and configs for them.
+is worth playing with; the **gpt-3.5-turbo** model is also available. The folder `src/ai_accessor/prompt_templates/DigestPlugin` contains the prompts and configs for them.
 
 ### db_accessor
 
@@ -194,9 +194,9 @@ sets how long the old news are stored in the database.
 
 There are a few folders mapped outside for the sake of better understanding how the service behaves and easier backups. They are all in the root folder of the project. Aside from DAPR's components and secrets file storage, there are:
 
-- **logs**: Holds logs for each service, essential for debugging.
-- **news**: Contains the news cache file from **news_accessor**, stored as human-readable JSON, along with another file tracking the latest update time to avoid duplicates.
-- **redis**: Stores the Redis DB dump, saved every 60 seconds for backup purposes.
+- `logs`: Holds logs for each service, essential for debugging.
+- `news`: Contains the news cache file from **news_accessor**, stored as human-readable JSON, along with another file tracking the latest update time to avoid duplicates.
+- `redis` Stores the Redis DB dump, saved every 60 seconds for backup purposes.
 
 ### Known issues
 
