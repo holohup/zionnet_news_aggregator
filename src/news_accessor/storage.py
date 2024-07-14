@@ -80,11 +80,9 @@ class FileStorage(Storage):
             news = []
         else:
             news.extend(final_data)
-            news_after_last = self._filter_entries(self.get_latest_entry_time(format='datetime'), news)
-            sorted_news = sorted(
-                news_after_last, key=lambda x: self._dt_from_pd(x['publish_date'])
-            )
-            with open(self._config.news_filename, 'a') as file:
+            unique_news = self._filter_unique_by_id(news)
+            sorted_news = sorted(unique_news, key=lambda x: self._dt_from_pd(x['publish_date']))
+            with open(self._config.news_filename, 'w') as file:
                 json.dump(sorted_news, file, indent=4, default=str)
                 file.write('\n')
         with open(self._config.latest_update_filename, 'w') as file:
@@ -108,6 +106,14 @@ class FileStorage(Storage):
         if format == 'datetime':
             return new_publish_date
         return new_publish_date.strftime("%Y-%m-%d %H:%M:%S")
+
+    def _filter_unique_by_id(self, news_list: list) -> list:
+        """Filters the news by unique id."""
+
+        seen_ids = set()
+        return [
+            news for news in news_list if news['id'] not in seen_ids and not seen_ids.add(news["id"])
+        ]
 
     def _get_dt_from_the_past(self, hours_before) -> datetime:
         """Returns datetime from the past to the current time in UTC"""
