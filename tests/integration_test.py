@@ -43,6 +43,24 @@ def test_Given_new_user_registration_When_at_first_there_are_no_tags_Then_after_
     assert response.json()['detail']['settings']['tags'] != ''
 
 
+def test_Given_user_registered_When_creating_digest_Then_result_is_generated_and_tg_bot_sends_it(test_gen_client, digest_credentials):
+    contact = digest_credentials['contact_info']
+    log_string = f'Sending digest to user with chat_id {contact}'
+    log_before = file_contents('logs/tg_accessor.log')
+    response = test_gen_client.post(user_endpoint_url('digest'))
+    assert response.status_code == HTTPStatus.OK
+    max_retries, pause_between_retries_seconds = 10, 5
+    log_entery_appeared = False
+    retry = 0
+    while retry < max_retries and not log_entery_appeared:
+        diff = file_contents('logs/tg_accessor.log').replace(log_before, '')
+        log_entery_appeared = log_string in diff
+        retry += 1
+        if not log_entery_appeared:
+            time.sleep(pause_between_retries_seconds)
+    assert log_entery_appeared is True
+
+
 def file_contents(filename):
     with open(filename, 'r') as f:
         result = f.read()

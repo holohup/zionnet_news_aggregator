@@ -6,6 +6,7 @@ endpoints = {
     'token': '/token',
     'ping': '/ping',
     'me': '/user/me',
+    'digest': '/digest'
 }
 
 logs_to_check = ('logs/db_accessor.log', 'logs/api_gateway.log', 'logs/user_manager.log')

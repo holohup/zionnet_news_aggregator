@@ -7,6 +7,7 @@ from queue import Empty, Queue
 from typing import NamedTuple
 
 from aiogram import Bot, Dispatcher
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.types import Message
 from cloudevents.sdk.event import v1
@@ -60,11 +61,17 @@ async def send_digest_to_user(user_id: int, message: list[DigestItem]) -> None:
         return
     if not message:
         await bot.send_message(chat_id=user_id, text='Sorry, no new news yet, come back later!')
+    logger.info(f'Sending digest to user with chat_id {user_id}')
     valid_chunks = split_news_into_chunks(news_list=message, max_len=config.bot.max_text_length)
     formatted_chunks = format_telegram_message(valid_chunks)
-    for chunk in formatted_chunks:
-        await bot.send_message(chat_id=user_id, text=chunk)
-        await asyncio.sleep(1)
+    try:
+        for chunk in formatted_chunks:
+            await bot.send_message(chat_id=user_id, text=chunk)
+            await asyncio.sleep(1)
+    except TelegramBadRequest:
+        logger.error(f'Looks like the user has deleted the chat, or the contact {user_id} is invalid')
+    else:
+        logger.info('Digest was sent to the user')
 
 
 @app.subscribe(pubsub_name=config.service.pubsub, topic=config.service.topic)
