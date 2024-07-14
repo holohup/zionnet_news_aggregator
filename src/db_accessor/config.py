@@ -1,5 +1,4 @@
 import os
-import re
 from dataclasses import dataclass
 
 from dapr.clients import DaprClient
@@ -40,6 +39,7 @@ class Config:
     storage: StorageSettings
     grpc: GRPCSettings
     admins: AdminsConfig
+    service_name: str
 
 
 def get_admins(store_name: str):
@@ -56,7 +56,8 @@ def load_config():
         redis=RedisSettings(host='localhost' if DEBUG else 'redis', port=6379),
         storage=StorageSettings(email_prefix='EMAIL:'),
         grpc=GRPCSettings(port=50052 if DEBUG else 50051),
-        admins=AdminsConfig(admin_emails=get_admins('localsecretstore'))
+        admins=AdminsConfig(admin_emails=get_admins('localsecretstore')),
+        service_name='db_accessor'
     )
 
 

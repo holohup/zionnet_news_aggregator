@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 async def invoke_grpc_method(app_id: str, method: str, data: str) -> dict:
+    """Async generic gRPC method invoker through DAPR."""
+
     try:
         async with DaprClient() as client:
             response = await client.invoke_method(app_id, method, data)
@@ -21,7 +23,9 @@ async def invoke_grpc_method(app_id: str, method: str, data: str) -> dict:
     return result
 
 
-async def publish_message(pubsub_name: str, topic_name: str, data):
+async def publish_message(pubsub_name: str, topic_name: str, data) -> None | dict:
+    """Generic async pubsub message publisher using Dapr."""
+
     try:
         async with DaprClient() as client:
             await client.publish_event(pubsub_name=pubsub_name, topic_name=topic_name, data=data)

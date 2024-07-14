@@ -34,9 +34,12 @@ class Config:
     grpc: GRPCConfig
     secrets: SecretsConfig
     ai: AIConfig
+    service_name: str
 
 
 def configure_env_variables(store_name: str):
+    """Sets environment variables in order for semantic kernel to initialize properly."""
+
     with DaprClient() as client:
         for var in ('GLOBAL_LLM_SERVICE', 'OPENAI_API_KEY', 'OPENAI_ORG_ID'):
             os.environ[var] = client.get_secret(store_name=store_name, key=var).secret[var]
@@ -47,7 +50,8 @@ def load_config():
         logging=LoggingConfig(logging_config),
         grpc=GRPCConfig(topic='ai_tasks', port=50053, pubsub='pubsub'),
         secrets=SecretsConfig(store_name='localsecretstore'),
-        ai=AIConfig(model_id='gpt-3.5-turbo')
+        ai=AIConfig(model_id='gpt-3.5-turbo'),
+        service_name='ai_accessor'
     )
 
 

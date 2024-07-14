@@ -28,6 +28,7 @@ class Config:
     service: ServiceConfig
     bot: BotConfig
     grpc_port: int
+    service_name: str
 
 
 def fetch_token(store_name):
@@ -44,7 +45,8 @@ def load_config():
         logging=LoggingConfig(logging_config),
         service=ServiceConfig(app_id='tg_accessor', pubsub='pubsub', topic='digest_report'),
         bot=BotConfig(token=fetch_token(store_name='localsecretstore'), max_text_length=4000),
-        grpc_port=50056
+        grpc_port=50056,
+        service_name='tg_accessor'
     )
 
 

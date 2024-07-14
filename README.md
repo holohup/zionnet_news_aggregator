@@ -198,3 +198,4 @@ There are a few folders mapped outside for the sake of better understanding how 
 
 - The solution utilizes HTTP, which is not secure.
 - Each service has access to secrets, and although they request only what is needed for them, this could potentially be a security vulnerability if someone manages to compromise one of the services.
+- No logout option, not JWT tokens blacklist
