@@ -44,6 +44,7 @@ class NewsUpdater:
 
         news_list, available_news = self._fetch_news_page(config, api_instance)
         if not news_list:
+            logger.info('No news in the first page of results, not proceeding.')
             return []
 
         total_pages = available_news // config['number']
