@@ -31,7 +31,7 @@ A **DAPR sidecar** is riding next to each container, helping with *service disco
 
 ## How to run
 
-Clone the repository. Make sure you have a *secrets/secrets.json* file. We will touch on that later. After everything's downloaded, do a
+Clone the repository and ensure your `secrets/secrets.json` file is correctly configured with the necessary credentials and secrets. Proceed with the following command:
 ```sh
 docker compose up
 ```

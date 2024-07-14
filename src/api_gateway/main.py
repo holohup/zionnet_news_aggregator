@@ -128,7 +128,7 @@ async def create_token(request: TokenRequest) -> Token:
     return result
 
 
-@app.get('/user/me/', response_model=User)
+@app.get('/user/me', response_model=User)
 async def read_users_me(
     current_user: Annotated[dict, Depends(u_manager.get_current_user)],
 ) -> User:
