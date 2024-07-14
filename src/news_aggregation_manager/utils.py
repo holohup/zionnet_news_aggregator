@@ -7,7 +7,10 @@ from dapr.clients.exceptions import DaprInternalError
 logger = logging.getLogger(__name__)
 
 
-async def all_accessors_are_up(seconds):
+async def all_accessors_are_up(seconds) -> None:
+    """A coroutine to check that all needed accessors are up.
+    It won't end untill they are."""
+
     services_not_up = ['ai_accessor', 'news_accessor', 'db_accessor']
     while services_not_up:
         try:

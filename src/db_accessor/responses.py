@@ -16,7 +16,7 @@ def user_deleted_response(email):
         **{
             'result': 'ok',
             'status_code': HTTPStatus.NO_CONTENT,
-            'detail': f'User {email} deleted',
+            'detail': 'User deleted',
         }
     ).jsons
 

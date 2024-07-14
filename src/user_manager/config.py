@@ -31,6 +31,7 @@ class Config:
     grpc: GRPCConfig
     jwt: JWTTokenConfig
     max_tags: int
+    service_name: str
 
 
 def load_config():
@@ -38,7 +39,8 @@ def load_config():
         logging=LoggingConfig(logging_config),
         grpc=GRPCConfig(db_accessor_app_id='db_accessor', port=50054, pubsub='pubsub', topic='ai_tasks'),
         jwt=configure_token(store_name='localsecretstore'),
-        max_tags=3
+        max_tags=3,
+        service_name='user_manager'
     )
 
 

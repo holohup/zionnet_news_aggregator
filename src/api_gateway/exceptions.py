@@ -27,6 +27,6 @@ server_error = {
 
 
 def http_exception(result):
-    """Exception that occured in other modules."""
+    """Exception that occured in other microservices and needs to be propagated."""
 
     return HTTPException(status_code=result['status_code'], detail=result['detail'])
