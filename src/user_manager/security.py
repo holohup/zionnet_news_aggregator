@@ -1,7 +1,6 @@
 import json
 import logging
-from datetime import datetime, timedelta, timezone
-
+from datetime import datetime, timezone
 import jwt
 from passlib.context import CryptContext
 
@@ -10,6 +9,8 @@ pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 def replace_password_with_hash_in_user_data(user_data: str) -> dict:
+    """Replaces users password with hash for later storage."""
+
     data = dict(json.loads(user_data))
     logger.info(f'Generating password hash for {data["email"]}')
     pwd = data.pop('password')
@@ -18,15 +19,21 @@ def replace_password_with_hash_in_user_data(user_data: str) -> dict:
     return data
 
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password, hashed_password) -> bool:
+    """Verifies if the password is correct."""
+
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def generate_hash(password):
+def generate_hash(password) -> str:
+    """Generates a password hash."""
+
     return pwd_context.hash(password)
 
 
-def create_access_token(data: dict, config):
+def create_access_token(data: dict, config) -> dict:
+    """Creates an access token with given data and expiration time."""
+
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + config.expire_minutes
     to_encode.update({"exp": expire})

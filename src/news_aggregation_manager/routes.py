@@ -4,6 +4,8 @@ from schema import CreateDigestAIResponse, CreateDigestRequest, Message
 
 
 class MessageParser(NamedTuple):
+    """Defines how a message is processed, depending on message subject"""
+
     model: type[Message]
     processor: Callable[[Message], None]
 

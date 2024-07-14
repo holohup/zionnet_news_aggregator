@@ -1,4 +1,6 @@
-def split_news_into_chunks(news_list, max_len):
+def split_news_into_chunks(news_list, max_len) -> list[str]:
+    """Splits news into chunks of data digestable by a telegram bot."""
+
     chunks = []
     current_chunk = ''
     current_length = 0
@@ -21,7 +23,9 @@ def split_news_into_chunks(news_list, max_len):
     return chunks
 
 
-def format_telegram_message(chunks):
+def format_telegram_message(chunks) -> list[str]:
+    """Formats the chunks - if there's more then 1 page, adds pagination info."""
+
     result = []
     def prefix(i): return f'Part {i + 1} of {len(chunks)}:\n\n' if len(chunks) > 1 else ''
     for i, chunk in enumerate(chunks):

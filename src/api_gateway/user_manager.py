@@ -3,14 +3,13 @@ import logging
 from datetime import datetime
 
 import jwt
-
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from invokers import invoke_grpc_method
 from pydantic import ValidationError
+
+from invokers import invoke_grpc_method
 from schema import (RegistrationRequest, TokenPayload,
                     UpdateUserSettingsRequest, User)
-
 from exceptions import credentials_exception, token_expired_exception
 
 
@@ -27,6 +26,8 @@ class UserManager:
         self._token_config = token_config
 
     async def register_user(self, user_data: RegistrationRequest) -> dict:
+        """User registration."""
+
         logger.info('Registering user.')
         result = await invoke_grpc_method(
             self._app_id, 'register_user', user_data.model_dump_json()
@@ -35,17 +36,23 @@ class UserManager:
         return result
 
     async def delete_user(self, email: str) -> dict:
+        """User deletion."""
+
         logger.info(f'Deleting user {email}.')
         await invoke_grpc_method(self._app_id, 'delete_user', email)
         logger.info('Deleted successfully.')
 
     async def get_user(self, email: str) -> dict:
+        """Get user."""
+
         logger.info(f'Getting user info for {email}.')
         result = await invoke_grpc_method(self._app_id, 'get_user', email)
         logger.info('Fetched successfully.')
         return result
 
     async def update_settings(self, request: UpdateUserSettingsRequest) -> dict:
+        """Update settings."""
+
         result = await invoke_grpc_method(
             self._app_id, 'update_settings', request.model_dump_json()
         )
@@ -53,6 +60,8 @@ class UserManager:
         return result
 
     async def create_token(self, email, password) -> dict:
+        """Creates a token given email and password from submission."""
+
         logger.info(f'Creating token for {email}')
         result = await invoke_grpc_method(
             self._app_id,
@@ -63,7 +72,9 @@ class UserManager:
         token = result['detail']
         return token
 
-    async def get_current_user(self, access_token: str = Depends(reuseable_oauth)):
+    async def get_current_user(self, access_token: str = Depends(reuseable_oauth)) -> User:
+        """Gets current user."""
+
         logger.info('Getting credentials')
         try:
             payload = jwt.decode(

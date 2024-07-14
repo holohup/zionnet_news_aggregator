@@ -1,19 +1,21 @@
 import logging
 
+from ai_accessor import AI_Accessor
 from config import ServiceConfig
+from db_accessor import DB_Accessor
 from id_accountant import IDAccountant
 from invokers import publish_message_sync
+from news_accessor import News_Accessor
 from schema import (CreateDigestAIResponse, CreateDigestRequest,
                     NewNewsResponse, ReporterRequest, UserResponse)
-
-from ai_accessor import AI_Accessor
-from db_accessor import DB_Accessor
-from news_accessor import News_Accessor
 
 logger = logging.getLogger(__name__)
 
 
 class MessageProcessor:
+    """Contains business logic of how to process the digest creation.
+    Can store logic for other complex actions as well."""
+
     def __init__(
         self, ai: AI_Accessor, db: DB_Accessor, news: News_Accessor, id_acc: IDAccountant, report_config: ServiceConfig
     ) -> None:
@@ -23,7 +25,9 @@ class MessageProcessor:
         self._request_attributes = id_acc
         self._reporter = report_config
 
-    def process_create_digest_request(self, message: CreateDigestRequest):
+    def process_create_digest_request(self, message: CreateDigestRequest) -> None:
+        """Processes the digest creation request, orchestrating various accessors."""
+
         logger.info(f'Creating digest for {message.email}')
         user: UserResponse = self._db.get_user(message.email)
         if not user:
@@ -46,7 +50,10 @@ class MessageProcessor:
             return
         logger.error(f'Something went wrong. {result}')
 
-    def process_digest_result(self, message: CreateDigestAIResponse):
+    def process_digest_result(self, message: CreateDigestAIResponse) -> None:
+        """Is called when the digest is ready.
+        Sends report to tg_accessor and updates users last processed news time."""
+
         logger.info('Received digest generation result.')
         details = self._request_attributes[message.id]
         if not details:

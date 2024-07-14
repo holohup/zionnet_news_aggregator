@@ -12,6 +12,7 @@ class ServiceConfig:
     topic: str
     app_id: str
 
+
 @dataclass
 class GRPCConfig:
     news: ServiceConfig
@@ -31,6 +32,7 @@ class Config:
     logging: LoggingConfig
     grpc: GRPCConfig
     news: NewsConfig
+    service_name: str
 
 
 def load_config():
@@ -44,6 +46,7 @@ def load_config():
             tg=ServiceConfig(app_id='tg_accessor', pubsub='pubsub', topic='digest_report')
         ),
         news=NewsConfig(pause_between_updates_minutes=60),
+        service_name='news_aggregation_manager'
     )
 
 

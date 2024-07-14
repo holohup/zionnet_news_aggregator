@@ -1,20 +1,28 @@
 import logging
 from typing import NamedTuple
 
+from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
+
 from config import AIConfig
 from schema import CreateDigestAIRequest, DigestEntry
-from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 
 logger = logging.getLogger(__name__)
 
 
 class NewsEntry(NamedTuple):
+    """A simple DTO for news entries."""
+
+
     url: str
     text: str
     summary: str
     title: str
 
+
 class AI:
+    """Class to communicate with the  OpenAI API.
+    Provides generate_tags and generate_digest methods."""
+
     def __init__(self, kernel, config) -> None:
         self._kernel = kernel
         self._config: AIConfig = config
@@ -31,9 +39,13 @@ class AI:
         )
 
     async def generate_tags(self, description: str, maximum_tags: int) -> str:
+        """Generates a list of comma-separated tags from user description."""
+
         return await self._kernel.invoke(self._plugin['tags'], desc=description, amount=maximum_tags)
 
     async def generate_digest(self, request: CreateDigestAIRequest) -> list[dict]:
+        """Generates a digest from user description and tags."""
+
         logger.info('Starting digest generation.')
         if not request.news.news:
             logger.info('No news for today')
@@ -53,6 +65,8 @@ class AI:
         return result
 
     async def _get_most_interesting_ids(self, request: CreateDigestAIRequest) -> list[int]:
+        """Polls the AI to find the ids of most interesting news from user info, tags and news titles and summaries."""
+
         user_description = request.user.settings.info
         user_tags = request.user.settings.tags
         news = [{'id': n.id, 'summary': n.title + '\n' + '' or n.summary} for n in request.news.news]
@@ -68,4 +82,6 @@ class AI:
         return [int(n.strip()) for n in str(result).split(',')]
 
     async def _create_digest(self, input: str, amount_of_sentences: int) -> str:
+        """Creates a digest from news text and max amount of sentences."""
+
         return await self._kernel.invoke(self._plugin['digest'], input=input, amount_of_sentences=amount_of_sentences)
