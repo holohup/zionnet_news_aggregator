@@ -98,6 +98,9 @@ def ping_service(request: InvokeMethodRequest) -> InvokeMethodResponse:
 def invoke_method(
         email: str, method: str, attrs: Any, response: callable, creating: bool = False
 ) -> InvokeMethodResponse:
+    """A generic method invoker with tries/excepts and logging.
+    All functions use it to work with the db."""
+
     logging.info(f'Trying to execute {method} for {email}')
     try:
         if creating and repo.user_exists(email):
