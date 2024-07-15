@@ -1,8 +1,10 @@
+from datetime import datetime, timezone
 import json
 import logging
-from datetime import datetime, timezone
+
 import jwt
 from passlib.context import CryptContext
+
 
 logger = logging.getLogger(__name__)
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')

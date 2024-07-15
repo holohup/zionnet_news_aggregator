@@ -46,7 +46,7 @@ def invoke_method_sync(app_id: str, method: str, data: str) -> str:
     return response.text()
 
 
-def publish_message_sync(pubsub_name: str, topic_name: str, data: dict) -> None:
+def publish_message_sync(pubsub_name: str, topic_name: str, data: dict) -> None | str:
     """Generic sync message publisher."""
 
     try:

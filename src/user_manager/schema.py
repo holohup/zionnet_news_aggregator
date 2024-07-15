@@ -18,7 +18,7 @@ class RegistrationRequest(BaseModel):
 
 
 class UserRegistrationSettings(BaseModel):
-    max_sentences: int = 5
+    max_sentences: int = 3
     max_news: int = 10
     info: str = ''
     tags: str = ''
