@@ -42,7 +42,9 @@ class FileStorage(Storage):
         cut_off_date = cut_off_date_utc.replace(tzinfo=None)
         logger.info(f'Purging news from {cut_off_date}')
         old_news = self._read_news_file()
-        self._save_filtered_entries(self._filter_entries(cut_off_date, old_news))
+        filtered_entries = self._filter_entries(cut_off_date, old_news)
+        self._save_filtered_entries(filtered_entries)
+        logger.info(f'Purged {len(old_news) - len(filtered_entries)} old news')
 
     def _read_news_file(self) -> list[dict]:
         """Reads the news file from the disk."""

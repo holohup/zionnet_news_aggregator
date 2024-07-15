@@ -55,7 +55,7 @@ class UserSettings(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "max_sentences": 5,
+                    "max_sentences": 3,
                     "max_news": 10,
                     "info": 'I am a junior programmer, I live in DC, I am interested in football and celebrities',
                     "tags": 'football, Ronaldo, Mark Knopfler',
