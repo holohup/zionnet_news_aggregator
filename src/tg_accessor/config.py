@@ -20,6 +20,7 @@ class ServiceConfig:
 class BotConfig:
     token: str
     max_text_length: int
+    pause_seconds_between_messages: str
 
 
 @dataclass
@@ -44,7 +45,11 @@ def load_config():
     return Config(
         logging=LoggingConfig(logging_config),
         service=ServiceConfig(app_id='tg_accessor', pubsub='pubsub', topic='digest_report'),
-        bot=BotConfig(token=fetch_token(store_name='localsecretstore'), max_text_length=4000),
+        bot=BotConfig(
+            token=fetch_token(store_name='localsecretstore'),
+            max_text_length=4000,
+            pause_seconds_between_messages=1
+        ),
         grpc_port=50056,
         service_name='tg_accessor'
     )

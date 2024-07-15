@@ -114,6 +114,7 @@ services:
       "--app-id", "ai_accessor",
       "--app-port", "50053",
       "--app-protocol", "grpc",
+      "--dapr-http-max-request-size", "32",
       "--resources-path", "./components"
     ]
     volumes:
@@ -180,6 +181,7 @@ services:
       "./daprd",
       "--app-id", "news_aggregation_manager",
       "--app-port", "50055",
+      "--dapr-http-max-request-size", "32",
       "--app-protocol", "grpc",
       "--resources-path", "./components"
     ]

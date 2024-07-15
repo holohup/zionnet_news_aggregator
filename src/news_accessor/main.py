@@ -56,7 +56,7 @@ def get_new_news(request: InvokeMethodRequest) -> InvokeMethodResponse:
     news = storage.get_all_news_after_strtime(from_time)
     result = NewNewsResponse(
         last_news_time=storage.get_latest_entry_time(),
-        news=[News.model_validate(n) for n in news]
+        news=[News.model_validate(n) for n in news[-config.grpc.max_news_to_return:]]
     )
     logger.info(f'Returning {len(result.news)} entries')
     return result.model_dump_json()
