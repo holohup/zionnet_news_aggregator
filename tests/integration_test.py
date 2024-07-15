@@ -1,6 +1,6 @@
 from http import HTTPStatus
-import time
 import pytest
+import time
 
 
 @pytest.fixture
