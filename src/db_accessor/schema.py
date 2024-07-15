@@ -9,8 +9,8 @@ class BaseModelWithJSONString(BaseModel):
 
 
 class UserSettings(BaseModelWithJSONString):
-    max_sentences: int = 5
-    max_news: int = 10
+    max_sentences: int = 3
+    max_news: int = 5
     info: str = ''
     tags: str = ''
 

@@ -1,7 +1,30 @@
 import time
 import pytest
 from httpx import Client
-from setup import user_endpoint_url
+
+
+host = 'http://127.0.0.1:8000'
+endpoints = {
+    'register': '/user/register',
+    'delete': '/user/delete',
+    'get': '/user/info',
+    'token': '/token',
+    'ping': '/ping',
+    'me': '/user/me',
+    'digest': '/digest'
+}
+
+
+@pytest.fixture
+def get_url():
+    """Provide endpoints for tests."""
+    def user_endpoint_url(name: str, email: str = None) -> str:
+
+        result = host + endpoints[name]
+        if email:
+            result += '/' + email
+        return result
+    return user_endpoint_url
 
 
 @pytest.fixture
@@ -38,6 +61,7 @@ def tag_gen_user_credentials_json():
         'contact_info': '111'
     }
 
+
 @pytest.fixture
 def digest_credentials():
     return {
@@ -48,38 +72,42 @@ def digest_credentials():
     }
 
 
-
 @pytest.fixture
 def client():
     return Client()
 
 
 @pytest.fixture
-def admin_client(admin_json, client):
-    client.post(user_endpoint_url('register'), json=admin_json)
-    token_response = client.post(user_endpoint_url('token'), json=admin_json)
+def admin_client(admin_json, client, get_url):
+    client.post(get_url('register'), json=admin_json)
+    token_response = client.post(get_url('token'), json=admin_json)
     token = token_response.json()['access_token']
     client = Client()
     client.headers.update({'Authorization': f'Bearer {token}'})
     yield client
-    admin_client_teardown(client, admin_json['email'])
+    admin_client_teardown(client, admin_json['email'], get_url)
 
 
 @pytest.fixture
-def test_gen_client(admin_client, digest_credentials, client):
-    client.post(user_endpoint_url('register'), json=digest_credentials)
-    token_response = client.post(user_endpoint_url('token'), json=digest_credentials)
+def test_gen_client(admin_client, digest_credentials, client, get_url):
+    client.post(get_url('register'), json=digest_credentials)
+    token_response = client.post(get_url('token'), json=digest_credentials)
     d_client = Client()
     d_client.headers.update({'Authorization': f'Bearer {token_response.json()["access_token"]}'})
     tags_generated = False
     while not tags_generated:
-        response = d_client.get(user_endpoint_url('me'))
+        response = d_client.get(get_url('me'))
         tags_generated = response.json()['settings']['tags']
         if not tags_generated:
             time.sleep(1)
     yield d_client
-    admin_client.delete(user_endpoint_url('delete', digest_credentials['email']))
+    admin_client.delete(get_url('delete', digest_credentials['email']))
 
 
-def admin_client_teardown(client, email):
-    client.delete(user_endpoint_url('delete', email))
+def admin_client_teardown(client, email, get_url):
+    client.delete(get_url('delete', email))
+
+
+@pytest.fixture
+def logs_to_check():
+    return ('logs/db_accessor.log', 'logs/api_gateway.log', 'logs/user_manager.log')

@@ -67,7 +67,7 @@ async def send_digest_to_user(user_id: int, message: list[DigestItem]) -> None:
     try:
         for chunk in formatted_chunks:
             await bot.send_message(chat_id=user_id, text=chunk)
-            await asyncio.sleep(1)
+            await asyncio.sleep(config.bot.pause_seconds_between_messages)
     except TelegramBadRequest:
         logger.error(f'Looks like the user has deleted the chat, or the contact {user_id} is invalid')
     else:

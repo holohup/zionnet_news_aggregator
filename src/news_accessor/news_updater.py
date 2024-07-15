@@ -1,4 +1,5 @@
 import logging
+from typing import Tuple
 
 import worldnewsapi
 from worldnewsapi.models.search_news200_response import SearchNews200Response
@@ -29,17 +30,25 @@ class NewsUpdater:
         self._api_config.api_key['apiKey'] = key
         self._api_config.api_key['headerApiKey'] = key
 
-    def _fetch_news_page(self, config, api_instance):
+    def update_news(self, request: Tags):
+        """The public method to update the news given all users tags."""
+
+        tags_list = [tag.strip() for tag in request.tags.split(',')]
+        tags_bunches = self._split_tags(tags_list)
+        all_news = self._collect_news(tags_bunches, self._storage.get_latest_entry_time())
+        self._save_news(all_news)
+
+    def _fetch_news_page(self, config, api_instance) -> Tuple[list, int]:
 
         """Fetches a single response page, or returns an empty list, even on exception."""
         try:
             response: SearchNews200Response = api_instance.search_news(**config)
             return (response.news, response.available) if response and response.available > 0 else ([], 0)
         except ApiException:
-            logger.exception('Limit reached, nothing to parse :(')
+            logger.error('Limit reached, nothing to parse :(')
             return ([], 0)
 
-    def _fetch_all_news_for_bunch(self, config, api_instance):
+    def _fetch_all_news_for_bunch(self, config, api_instance) -> list:
         """Fetches all news for a current bunch of tags"""
 
         news_list, available_news = self._fetch_news_page(config, api_instance)
@@ -101,14 +110,6 @@ class NewsUpdater:
         logger.info('Saving new news and updating latest news time stamp.')
         self._storage.save_news(final_data, latest_news_date)
 
-    def update_news(self, request: Tags):
-        """The public method to update the news given all users tags."""
-
-        tags_list = [tag.strip() for tag in request.tags.split(',')]
-        tags_bunches = self._split_tags(tags_list)
-        all_news = self._collect_news(tags_bunches, self._storage.get_latest_entry_time())
-        self._save_news(all_news)
-
     def _prepare_config(self, pub_date, bunch) -> dict:
         """Creates a parsing config for the current tags bunch."""
 
@@ -118,7 +119,7 @@ class NewsUpdater:
         logger.info(f'Config preparation finished: {config}')
         return config
 
-    def _split_tags(self, tags: list[str]):
+    def _split_tags(self, tags: list[str]) -> list[str]:
         """Splits the tags into bunches.
         So that on every request the query parameters does not exceed configured amount of chars."""
 
