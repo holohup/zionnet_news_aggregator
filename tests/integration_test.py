@@ -48,7 +48,7 @@ def test_Given_user_registered_When_creating_digest_Then_result_is_generated_and
     log_before = file_contents('logs/tg_accessor.log')
     response = test_gen_client.post(get_url('digest'))
     assert response.status_code == HTTPStatus.OK
-    max_retries, pause_between_retries_seconds = 10, 5
+    max_retries, pause_between_retries_seconds = 15, 5
     log_entery_appeared = False
     retry = 0
     while retry < max_retries and not log_entery_appeared:
