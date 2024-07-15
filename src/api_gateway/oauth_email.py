@@ -12,7 +12,7 @@ class PasswordRequestForm(OAuth2PasswordRequestForm):
         username: str = Form(),
         password: str = Form(),
         grant_type: str = Form(default=None, regex='password'),
-        scope: str = Form(default=""),
+        scope: str = Form(default=''),
         client_id: Optional[str] = Form(default=None),
         client_secret: Optional[str] = Form(default=None),
     ):

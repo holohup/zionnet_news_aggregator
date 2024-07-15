@@ -2,21 +2,21 @@ from fastapi import HTTPException, status
 
 credentials_exception = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
-    detail="Could not validate credentials",
-    headers={"WWW-Authenticate": "Bearer"},
+    detail='Could not validate credentials',
+    headers={'WWW-Authenticate': 'Bearer'},
 )  # JWT Token invalid
 
 
 token_expired_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Token expired",
-    headers={"WWW-Authenticate": "Bearer"},
+    detail='Token expired',
+    headers={'WWW-Authenticate': 'Bearer'},
 )  # JWT Token expired
 
 
 admin_only_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="This content requires an administrator account"
+    detail='This content requires an administrator account'
 )  # JWT Token expired
 
 server_error = {

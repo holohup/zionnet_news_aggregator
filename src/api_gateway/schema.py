@@ -15,13 +15,13 @@ class RegistrationRequest(BaseModel):
         return password
 
     model_config = {
-        "json_schema_extra": {
-            "examples": [
+        'json_schema_extra': {
+            'examples': [
                 {
-                    "email": "user@example.com",
-                    "password": "string",
-                    "contact_info": "44040624",
-                    "info": 'I am a junior programmer, I live in DC, I am interested in football and celebrities. I really love bikes, ski and swimming, but I prefer playing minecraft or BrawlStars all day.',
+                    'email': 'user@example.com',
+                    'password': 'string',
+                    'contact_info': '44040624',
+                    'info': 'I am a junior programmer, I live in DC, I am interested in football and celebrities. I really love bikes, ski and swimming, but I prefer playing minecraft or BrawlStars all day.',
                 }
             ]
         }
@@ -50,13 +50,13 @@ class UserSettings(BaseModel):
     tags: str | None = None
 
     model_config = {
-        "json_schema_extra": {
-            "examples": [
+        'json_schema_extra': {
+            'examples': [
                 {
-                    "max_sentences": 3,
-                    "max_news": 10,
-                    "info": 'I am a junior programmer, I live in DC, I am interested in football and celebrities',
-                    "tags": 'football, Ronaldo, Mark Knopfler',
+                    'max_sentences': 3,
+                    'max_news': 10,
+                    'info': 'I am a junior programmer, I live in DC, I am interested in football and celebrities',
+                    'tags': 'football, Ronaldo, Mark Knopfler',
                 }
             ]
         }

@@ -112,11 +112,14 @@ The service remembers the last news processed, so if you immediately request ano
     ```
 
     Currently, the integration tests test the following:
-    - *all services are running*
-    - after the *digest generation* request is received, everything works and the digest is on its way to the Telegram user
-    - *logging* is active
-    - the *AI generates tags* for the user in a few moments after the registration
-    - the *user registration* chain of services (e.g. cannot register the same user twice)
+    - **all services are running**
+    - after the **digest generation** request is received, everything works and the digest is on its way to the Telegram user
+    - **logging** is active and successfully mapped outside of the containers
+    - the **AI generates tags** for the user in a few moments after the registration
+    - the **user registration** chain of services (e.g. cannot register the same user twice)
+
+    If the `secrets/secrets.json` file is valid, the tests should successfully:
+    ![tests passed](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/tests.png?raw=true)
 
 
 - You can also register an admin user and check endpoints available to admins. To do that, add the admin email to 'secrets/secrets.json' in the **"ADMIN_EMAILS"** field. It's a comma-separated string.
