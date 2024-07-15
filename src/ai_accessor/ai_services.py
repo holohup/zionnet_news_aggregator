@@ -1,5 +1,6 @@
 import logging
 from typing import NamedTuple
+from xml.sax.saxutils import escape
 
 from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 
@@ -73,7 +74,7 @@ class AI:
 
         user_description = request.user.settings.info
         user_tags = request.user.settings.tags
-        news = [{'id': n.id, 'summary': n.title + '\n' + '' or n.summary} for n in request.news.news]
+        news = [{'id': n.id, 'summary': escape(n.title + '\n' + '' or n.summary)} for n in request.news.news if n.id and n.title]
         logger.info('All variables ready, requesting AI help')
         result = await self._kernel.invoke(
             self._plugin['pick_news'],

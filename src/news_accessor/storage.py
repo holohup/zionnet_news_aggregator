@@ -127,7 +127,7 @@ class FileStorage(Storage):
         """Public method to get all new news from a specific time in str."""
 
         if not strtime:
-            dt = self._get_dt_from_the_past(24 * 7)
+            dt = self.get_latest_entry_time(format='datetime') - timedelta(hours=24)
         else:
             dt = self._dt_from_pd(strtime)
         logger.info(f'Fetching all news from {dt}')
