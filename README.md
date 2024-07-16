@@ -42,7 +42,7 @@ If you happen to have a spinning hard drive, it may make some noise while buildi
 ### 1. Start a chat in the Telegram Bot
 
 - [@zionnet_bot](https://t.me/zionnet_bot) - click on the link, or enter the bot name in Telegram Search. You will find it immediately.
-- Press the 'Start' button. The Bot will send you a response with your chat ID.
+- Press the 'Start' button. The Bot will send you a response with your chat ID. The bot will be able to send you messages until the moment you delete that chat, it is the Telegram policy.
 
 ![bot response with id](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/bot.png?raw=true)
 
@@ -137,6 +137,16 @@ The user-facing REST API, the only way to make the service do something, the onl
 - deliver results which are available instantly or exceptions with permitted details to the user
 
 It does not implement any logic of its own except for that and only passes the information back and forth.
+
+You can access the service documentation at `http://127.0.0.1:8000/docs/`. Below is a list of its endpoints:
+
+- **POST** `/user/register` - Register a new user, available to anyone.
+- **PATCH** `/user/update_settings` - Update user settings, **requires a JWT token**.
+- **DELETE** `/user/delete/{user_email}` - Delete a user, **requires an admin JWT token**. This endpoint is also used for teardown after integration tests.
+- **POST** `/digest` - Create a digest, **requires a JWT token**.
+- **GET** `/user/info/{user_email}` - Retrieve full user info, **requires an admin JWT token**.
+- **POST** `/token` - Generate a token using email and password, available to anyone.
+- **GET** `/user/me` - Get current user info, **requires a JWT token**.
 
 ### user_manager
 
