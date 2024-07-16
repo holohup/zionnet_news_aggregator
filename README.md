@@ -138,15 +138,15 @@ The user-facing REST API, the only way to make the service do something, the onl
 
 It does not implement any logic of its own except for that and only passes the information back and forth.
 
-This is the service you access at `http://127.0.0.1:8000/docs/`, here's a list of its endpoints:
+You can access the service documentation at `http://127.0.0.1:8000/docs/`. Below is a list of its endpoints:
 
-- /user/register **POST** - user registration, available to anyone
-- /user/update_settings **PATCH** - settings update, **requires a JWT token**
-- /user/delete/{user_email} **DELETE** - delete a user. **requires an admin JWT token**. This endpoint is also used for teardown after integration tests.
-- /digest **POST** - create a digest, **requires a JWT token**
-- /user/info/{user_email} **GET** - get full user info, **requires an admin JWT token**
-- /token **POST** - create a token from email and password, available to anyone
-- /user/me **GET** - get current user info, **requires a JWT token**
+- **POST** `/user/register` - Register a new user, available to anyone.
+- **PATCH** `/user/update_settings` - Update user settings, **requires a JWT token**.
+- **DELETE** `/user/delete/{user_email}` - Delete a user, **requires an admin JWT token**. This endpoint is also used for teardown after integration tests.
+- **POST** `/digest` - Create a digest, **requires a JWT token**.
+- **GET** `/user/info/{user_email}` - Retrieve full user info, **requires an admin JWT token**.
+- **POST** `/token` - Generate a token using email and password, available to anyone.
+- **GET** `/user/me` - Get current user info, **requires a JWT token**.
 
 ### user_manager
 
