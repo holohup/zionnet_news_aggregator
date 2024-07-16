@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime, timedelta
 
-from config import FilenamesConfig
+from config import StorageConfig
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +31,8 @@ class Storage(ABC):
 
 
 class FileStorage(Storage):
-    def __init__(self, filename_config: FilenamesConfig):
-        self._config = filename_config
+    def __init__(self, storage_config: StorageConfig):
+        self._config = storage_config
 
     def delete_old_entries(self, news_expiration_hours: timedelta) -> None:
         """Deletes the outdated entries given expiration hours and knowing current time."""
@@ -127,7 +127,9 @@ class FileStorage(Storage):
         """Public method to get all new news from a specific time in str."""
 
         if not strtime:
-            dt = self.get_latest_entry_time(format='datetime') - timedelta(hours=24)
+            dt = self.get_latest_entry_time(format='datetime') - timedelta(
+                hours=self._config.hours_of_news_to_return_if_user_has_no_news_read_yet
+            )
         else:
             dt = self._dt_from_pd(strtime)
         logger.info(f'Fetching all news from {dt}')

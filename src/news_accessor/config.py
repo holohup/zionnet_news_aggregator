@@ -13,11 +13,12 @@ class LoggingConfig:
 
 
 @dataclass
-class FilenamesConfig:
+class StorageConfig:
     latest_update_filename: str
     news_filename: str
     latest_update_time_from_now_if_no_file_exists: int
     time_delta_seconds_to_avoid_collisions: int
+    hours_of_news_to_return_if_user_has_no_news_read_yet: int
 
 
 @dataclass
@@ -39,7 +40,7 @@ class GRPCSettings:
 @dataclass
 class Config:
     logging: LoggingConfig
-    filenames: FilenamesConfig
+    storage: StorageConfig
     parsing: ParsingConfig
     grpc: GRPCSettings
     service_name: str
@@ -56,11 +57,12 @@ def load_config():
     api_key = get_api_key('localsecretstore', news_api_key_var) if not DEBUG else os.getenv(news_api_key_var)
     return Config(
         logging=LoggingConfig(logging_config),
-        filenames=FilenamesConfig(
+        storage=StorageConfig(
             latest_update_filename='news/latest_update.json',
             news_filename='news/news.json',
             latest_update_time_from_now_if_no_file_exists=24*2,
-            time_delta_seconds_to_avoid_collisions=1
+            time_delta_seconds_to_avoid_collisions=1,
+            hours_of_news_to_return_if_user_has_no_news_read_yet=48
         ),
         parsing=ParsingConfig(
             max_entries=100, news_expiration_hours=timedelta(hours=24 * 7), api_key=api_key, max_query_chars=100

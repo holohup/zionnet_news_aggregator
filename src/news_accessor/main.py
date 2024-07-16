@@ -13,8 +13,8 @@ from storage import FileStorage
 config = load_config()
 logging.config.dictConfig(config.logging.settings)
 logger = logging.getLogger(__name__)
-storage = FileStorage(config.filenames)
-updater = NewsUpdater(storage, config.parsing)
+storage = FileStorage(storage_config=config.storage)
+updater = NewsUpdater(storage=storage, config=config.parsing)
 app: App = App()
 
 
