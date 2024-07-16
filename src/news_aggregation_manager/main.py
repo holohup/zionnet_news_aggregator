@@ -66,6 +66,7 @@ async def news_updater(pause_minutes: int) -> None:
 
     logger.info(f'Starting news updater, updates are scheduled every {pause_minutes} minutes')
     while True:
+        logger.info('Issuing an order to update news!')
         try:
             await news_accessor.update_news()
             await asyncio.sleep(pause_minutes * 60)
