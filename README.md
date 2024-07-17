@@ -67,6 +67,17 @@ This will change when you authorize in the next step. After that, you can check 
 
 ![filled tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true)
 
+<table>
+  <tr>
+    <th>Before</th>
+    <th>After</th>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags.png?raw=true" style="width: 45%;"></td>
+    <td><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true" style="width: 45%;"></td>
+  </tr>
+</table>
+
 If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
 
 ### 3. Authorize with your credentials and get a JWT token.
@@ -122,7 +133,7 @@ The service remembers the last news processed, so if you immediately request ano
     ![tests passed](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/tests.png?raw=true)
 
 
-- You can also register an admin user and check endpoints available to admins. To do that, add the admin email to 'secrets/secrets.json' in the **"ADMIN_EMAILS"** field. It's a comma-separated string.
+- You can also register an admin user and check endpoints available to admins. To do that, add the admin email to `secrets/secrets.json` in the **"ADMIN_EMAILS"** field. It's a comma-separated string.
 For more in-depth testing, you would need to dive deeper into the application mechanics and settings, which we will cover in the next step.
 
 ## Details and components highlights
