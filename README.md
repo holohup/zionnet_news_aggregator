@@ -100,7 +100,7 @@ You can tune the settings to your liking or continue as is. In '/user/update_set
 
 ### 5. Get that digest at last!
 
-Click on the '/digest' endpoint -> 'Try it out' -> Execute.
+**Click on the '/digest' endpoint** -> **'Try it out'** -> **'Execute'**.
 You can enjoy the logs flow while waiting for the digest, but it should not take more than 10-20 seconds to receive your news digest from the Telegram bot.
 The service remembers the last news processed, so if you immediately request another digest, no new news will be available - you either will have to wait some time for the new news to appear in the service or register a new user.
 
