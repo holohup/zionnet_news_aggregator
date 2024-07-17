@@ -61,7 +61,7 @@ You need to provide your email (used as a unique identifier for each user), pass
     2. Again with the help of AI, both the description and tags are used to validate the news and choose only the most interesting ones.
 When you press the 'Execute' button, you will be registered instantly. In the background, a process will launch to fill out the tags for you. You can see that in the response (which fetches the user info from the DB), the 'tags' field in 'settings' is empty.
 
-This will change when you authorize in the next step. After that, you can check the 'me' endpoint.
+This will already have changed by the time you authorize in the next step. After that, you can check the 'me' endpoint.
 
 <table>
   <tr>
@@ -74,7 +74,7 @@ This will change when you authorize in the next step. After that, you can check 
   </tr>
 </table>
 
-If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
+If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them using the **update_settings** endpoint. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
 
 ### 3. Authorize with your credentials and get a JWT token.
 
