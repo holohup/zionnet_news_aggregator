@@ -61,13 +61,20 @@ You need to provide your email (used as a unique identifier for each user), pass
     2. Again with the help of AI, both the description and tags are used to validate the news and choose only the most interesting ones.
 When you press the 'Execute' button, you will be registered instantly. In the background, a process will launch to fill out the tags for you. You can see that in the response (which fetches the user info from the DB), the 'tags' field in 'settings' is empty.
 
-![empty tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags.png?raw=true)
+This will already have changed by the time you authorize in the next step. After that, you can check the 'me' endpoint.
 
-This will change when you authorize in the next step. After that, you can check the 'me' endpoint.
+<table>
+  <tr>
+    <th>Before</th>
+    <th>After</th>
+  </tr>
+  <tr>
+    <td style="vertical-align: top;"><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags.png?raw=true" style="max-width: 100%; height: auto;"></td>
+    <td style="vertical-align: top;"><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true" style="max-width: 100%; height: auto;"></td>
+  </tr>
+</table>
 
-![filled tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true)
-
-If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
+If you feel like your tags are misleading or don't describe you holistically, you can always fine-tune them using the **update_settings** endpoint. The tag generation is a one-time procedure for each new registration, needed to provide service ASAP without forcing the user to think of tags that describe them.
 
 ### 3. Authorize with your credentials and get a JWT token.
 
@@ -93,7 +100,8 @@ You can tune the settings to your liking or continue as is. In '/user/update_set
 
 ### 5. Get that digest at last!
 
-Click on the '/digest' endpoint -> 'Try it out' -> Execute.
+**Click on the '/digest' endpoint** -> **'Try it out'** -> **'Execute'**.
+
 You can enjoy the logs flow while waiting for the digest, but it should not take more than 10-20 seconds to receive your news digest from the Telegram bot.
 The service remembers the last news processed, so if you immediately request another digest, no new news will be available - you either will have to wait some time for the new news to appear in the service or register a new user.
 
@@ -122,7 +130,7 @@ The service remembers the last news processed, so if you immediately request ano
     ![tests passed](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/tests.png?raw=true)
 
 
-- You can also register an admin user and check endpoints available to admins. To do that, add the admin email to 'secrets/secrets.json' in the **"ADMIN_EMAILS"** field. It's a comma-separated string.
+- You can also register an admin user and check endpoints available to admins. To do that, add the admin email to `secrets/secrets.json` in the **"ADMIN_EMAILS"** field. It's a comma-separated string.
 For more in-depth testing, you would need to dive deeper into the application mechanics and settings, which we will cover in the next step.
 
 ## Details and components highlights
