@@ -67,7 +67,7 @@ def load_config():
         parsing=ParsingConfig(
             max_entries=100, news_expiration_hours=timedelta(hours=24 * 7), api_key=api_key, max_query_chars=100
         ),
-        grpc=GRPCSettings(topic='news_tasks', port=50052, pubsub='pubsub', max_news_to_return=700),
+        grpc=GRPCSettings(topic='news_tasks', port=50052, pubsub='pubsub', max_news_to_return=500),
         service_name='news_accessor'
     )
 
