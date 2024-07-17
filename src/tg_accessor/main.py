@@ -4,7 +4,6 @@ import logging
 import logging.config
 import threading
 from queue import Empty, Queue
-from typing import NamedTuple
 
 from aiogram import Bot, Dispatcher
 from aiogram.exceptions import TelegramBadRequest
@@ -15,20 +14,7 @@ from dapr.ext.grpc import App, InvokeMethodRequest, InvokeMethodResponse
 
 from config import load_config
 from formatting import format_telegram_message, split_news_into_chunks
-
-
-class DigestItem(NamedTuple):
-    """Digest item - text + url."""
-
-    text: str
-    url: str
-
-
-class UserMessage(NamedTuple):
-    """User message - chat id to send to and the digest."""
-
-    chat_id: int
-    digest: list[DigestItem]
+from schema import DigestItem, UserMessage
 
 
 config = load_config()

@@ -32,7 +32,7 @@ async def generate_tags(data: GenerateTagsRequest) -> None:
     request = GenerateTagsRequest.model_validate(data)
     result = await ai.generate_tags(description=request.description, maximum_tags=request.max_tags)
     logger.info('Result ready')
-    response = GenerateTagsResponse(result=str(result), id=request.id, recipient='user_manager')
+    response = GenerateTagsResponse(result=str(result), id=request.id)
     with DaprClient() as client:
         client.publish_event(config.grpc.pubsub, config.grpc.topic, response.model_dump_json())
 
@@ -51,7 +51,7 @@ async def create_digest(data: CreateDigestAIRequest) -> None:
 
 executors = {
     'generate_tags': generate_tags,
-    'create_digest': create_digest
+    'create_digest_ai_request': create_digest
 }
 
 
@@ -73,7 +73,7 @@ def task_consumer(event: v1.Event) -> None:
 
     data = json.loads(event.Data())
     logger.info('Received event')
-    if data.get('recipient') != config.service_name:
+    if data.get('subject') not in executors.keys():
         logger.info(f'Not for {config.service_name}')
         return
     future = asyncio.run_coroutine_threadsafe(process_event(data), loop)

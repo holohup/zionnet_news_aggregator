@@ -21,11 +21,7 @@ class Tags(BaseModel):
     tags: str  # comma separated tags
 
 
-class Request(BaseModel):
-    recipient: str
-
-
-class UpdateNewsRequest(Request):
+class UpdateNewsRequest(BaseModel):
     subject: str = 'update_news'
     detail: Tags
 

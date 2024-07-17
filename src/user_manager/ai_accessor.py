@@ -19,7 +19,7 @@ class AI_Accessor:
     def queue_tags_generation(self, id_: int, info: str) -> None:
         """Put an order to generate tags."""
 
-        request = GenerateTagsRequest(recipient='ai_accessor', id=id_, description=info, max_tags=self._max_tags)
+        request = GenerateTagsRequest(id=id_, description=info, max_tags=self._max_tags)
         self._send_request_to_queue(request)
 
     def _send_request_to_queue(self, request) -> None:

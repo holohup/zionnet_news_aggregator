@@ -24,19 +24,18 @@ def update_news_subscriber(event: v1.Event):
 
     data = json.loads(event.Data())
     logger.info('Received new event')
-    if data.get('recipient') != config.service_name:
+    if data.get('subject') != 'update_news':
         logger.info(f'Not for {config.service_name}')
         return
 
-    if data.get('subject') == 'update_news':
-        logger.info(f'Received news update request {data}')
-        request = UpdateNewsRequest.model_validate(data)
-        try:
-            updater.update_news(request.detail)
-        except Exception as e:
-            logger.exception(f'Failed to update news: {str(e)}')
-        else:
-            logger.info('Parse complete')
+    logger.info(f'Received news update request {data}')
+    request = UpdateNewsRequest.model_validate(data)
+    try:
+        updater.update_news(request.detail)
+    except Exception as e:
+        logger.exception(f'Failed to update news: {str(e)}')
+    else:
+        logger.info('Parse complete')
 
 
 @app.method('ping')
