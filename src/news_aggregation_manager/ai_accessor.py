@@ -18,7 +18,7 @@ class AI_Accessor:
         """Publishes a message to ai_accessor to generate the tags."""
 
         logger.info('Generating tags')
-        request = GenerateTagsRequest(id=id_, description=desc, max_tags=max_tags, recipient='ai_accessor')
+        request = GenerateTagsRequest(id=id_, description=desc, max_tags=max_tags)
         await publish_message(self._config.pubsub, self._config.topic, request.model_dump())
         logger.info(f'Message sent to queue: {request}')
 

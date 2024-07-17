@@ -6,37 +6,28 @@ class Tags(BaseModel):
 
 
 class Message(BaseModel):
-    pass
+    subject: str
 
 
-class Request(Message):
-    recipient: str
-
-
-class Response(Message):
-    recipient: str
-
-
-class UpdateNewsRequest(Request):
+class UpdateNewsRequest(Message):
     subject: str = 'update_news'
     detail: Tags
 
 
-class GenerateTagsRequest(Response):
+class GenerateTagsRequest(Message):
     subject: str = 'generate_tags'
     id: int
     description: str
     max_tags: int
 
 
-class GenerateTagsResponse(BaseModel):
+class GenerateTagsResponse(Message):
     subject: str = 'tags_response'
     result: str
     id: int
 
 
-class CreateDigestRequest(BaseModel):
-    recipient: str = 'news_aggregation_manager'
+class CreateDigestRequest(Message):
     subject: str = 'create_digest'
     email: str
 
@@ -69,9 +60,8 @@ class NewNewsResponse(BaseModel):
     news: list[News]
 
 
-class CreateDigestAIRequest(Request):
-    recipient: str = 'ai_accessor'
-    subject: str = 'create_digest'
+class CreateDigestAIRequest(Message):
+    subject: str = 'create_digest_ai_request'
     user: UserResponse
     news: NewNewsResponse
     id: int
@@ -82,14 +72,13 @@ class DigestEntry(BaseModel):
     url: str
 
 
-class CreateDigestAIResponse(Response):
-    recipient: str = 'news_aggregation_manager'
+class CreateDigestAIResponse(Message):
     subject: str = 'digest_result'
     digest: list[DigestEntry]
     id: int
 
 
-class ReporterRequest(BaseModel):
+class ReporterRequest(Message):
     contact: str
     subject: str = 'report_ready'
     digest: list[DigestEntry]

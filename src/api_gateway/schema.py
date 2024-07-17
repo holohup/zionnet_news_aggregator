@@ -83,6 +83,5 @@ class UpdateUserSettingsRequest(BaseModel):
 
 
 class CreateDigestRequest(BaseModel):
-    recipient: str = 'news_aggregation_manager'
     subject: str = 'create_digest'
     email: str

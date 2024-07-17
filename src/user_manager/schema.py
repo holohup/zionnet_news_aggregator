@@ -10,6 +10,10 @@ class UserManagerResponse:
     detail: str
 
 
+class Message(BaseModel):
+    subject: str
+
+
 class RegistrationRequest(BaseModel):
     email: str
     password: str
@@ -39,22 +43,14 @@ class UserWithEmail(User):
     email: str
 
 
-class Request(BaseModel):
-    recipient: str
-
-
-class Response(BaseModel):
-    recipient: str
-
-
-class GenerateTagsRequest(Request):
+class GenerateTagsRequest(Message):
     subject: str = 'generate_tags'
     id: int
     description: str
     max_tags: int
 
 
-class GenerateTagsResponse(Response):
+class GenerateTagsResponse(Message):
     subject: str = 'tags_response'
     result: str
     id: int

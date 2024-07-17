@@ -86,19 +86,18 @@ def updates_from_ai(event: v1.Event) -> None:
 
     data = json.loads(event.Data())
     logger.info('Received event')
-    if not data.get('recipient') == config.service_name:
+    if data.get('subject') != 'tags_response':
         logger.info(f'Not for {config.service_name}')
         return
-    if data.get('subject') == 'tags_response':
-        response = GenerateTagsResponse.model_validate(data)
-        email = accountant[response.id]
-        logger.info(f'Saving new tags for {email}')
-        if not email:
-            return
-        request = UpdateUserSettingsRequest(
-            email=email, settings=UserSettings(tags=response.result)
-        )
-        db_accessor.update_settings(request.model_dump_json())
+    response = GenerateTagsResponse.model_validate(data)
+    email = accountant[response.id]
+    logger.info(f'Saving new tags for {email}')
+    if not email:
+        return
+    request = UpdateUserSettingsRequest(
+        email=email, settings=UserSettings(tags=response.result)
+    )
+    db_accessor.update_settings(request.model_dump_json())
 
 
 @app.method('ping')

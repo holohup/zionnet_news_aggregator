@@ -1,22 +1,18 @@
 from pydantic import BaseModel
 
 
-class Request(BaseModel):
-    recipient: str
+class Message(BaseModel):
+    subject: str
 
 
-class Response(BaseModel):
-    recipient: str
-
-
-class GenerateTagsRequest(Request):
+class GenerateTagsRequest(Message):
     subject: str = 'generate_tags'
     id: int
     description: str
     max_tags: int
 
 
-class GenerateTagsResponse(Response):
+class GenerateTagsResponse(Message):
     subject: str = 'tags_response'
     result: str
     id: int
@@ -50,9 +46,8 @@ class NewNewsResponse(BaseModel):
     news: list[News]
 
 
-class CreateDigestAIRequest(Request):
-    recipient: str = 'ai_accessor'
-    subject: str = 'create_digest'
+class CreateDigestAIRequest(Message):
+    subject: str = 'create_digest_ai_request'
     user: UserResponse
     news: NewNewsResponse
     id: int
@@ -63,8 +58,7 @@ class DigestEntry(BaseModel):
     url: str
 
 
-class CreateDigestAIResponse(Response):
-    recipient: str = 'news_aggregation_manager'
+class CreateDigestAIResponse(Message):
     subject: str = 'digest_result'
     digest: list[DigestEntry]
     id: int

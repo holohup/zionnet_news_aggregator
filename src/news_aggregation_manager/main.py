@@ -38,7 +38,7 @@ def consumer(event: v1.Event) -> None:
 
     data = json.loads(event.Data())
     logger.info('Received event.')
-    if data.get('recipient') != config.service_name:
+    if data.get('subject') not in parse_details.keys():
         logger.info(f'Not for {config.service_name}')
         return
     try:

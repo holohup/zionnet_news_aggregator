@@ -23,7 +23,7 @@ class News_Accessor:
             logger.info('No tags for users in system yet. Not proceeding.')
             return
         logger.info(f'Tags received: {all_tags}')
-        data = UpdateNewsRequest(detail=Tags(tags=all_tags), recipient=self._config.news.app_id)
+        data = UpdateNewsRequest(detail=Tags(tags=all_tags))
         await publish_message(self._config.news.pubsub, self._config.news.topic, data.model_dump())
 
     def get_new_news(self, update_from: str) -> list:

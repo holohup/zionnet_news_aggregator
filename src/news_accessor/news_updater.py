@@ -39,14 +39,16 @@ class NewsUpdater:
         self._save_news(all_news)
 
     def _fetch_news_page(self, config, api_instance) -> Tuple[list, int]:
+        """Fetches a single response page, or returns an empty list.
+        Re-raises the exception to be caught by higher-level handlers.
+        """
 
-        """Fetches a single response page, or returns an empty list, even on exception."""
         try:
             response: SearchNews200Response = api_instance.search_news(**config)
             return (response.news, response.available) if response and response.available > 0 else ([], 0)
-        except ApiException:
+        except ApiException as e:
             logger.error('Limit reached, nothing to parse :(')
-            return ([], 0)
+            raise e
 
     def _fetch_all_news_for_bunch(self, config, api_instance) -> list:
         """Fetches all news for a current bunch of tags"""
@@ -67,26 +69,34 @@ class NewsUpdater:
             news_list.extend(news_page)
         return news_list
 
-    def _process_tags_bunch(self, tags_bunch, pub_date):
-        """Given a tags bunch, tries to download all news for it after given time."""
+    def _process_tags_bunch(self, tags_bunch, pub_date) -> Tuple[list, bool]:
+        """Given a tags bunch, tries to download all news for it after given time.
+        Returns a list of news and a boolean indicating if an exception occurred.
+        """
 
         config = self._prepare_config(pub_date, tags_bunch)
         with worldnewsapi.ApiClient(self._api_config) as api_client:
             api_instance = worldnewsapi.NewsApi(api_client)
-            return self._fetch_all_news_for_bunch(config, api_instance)
+            try:
+                news_list = self._fetch_all_news_for_bunch(config, api_instance)
+                return news_list, False
+            except ApiException:
+                logger.error('API exception occurred while processing tags bunch.')
+                return [], True
 
     def _collect_news(self, tags_bunches, pub_date):
         """The ultimate news collector.
-        Collects all pages of news gathered for every tag bunch in tag bunches into a single list."""
+        Collects all pages of news gathered for every tag bunch in tag bunches into a single list.
+        """
 
         all_news = []
         for tags_bunch in tags_bunches:
-            news_list = self._process_tags_bunch(tags_bunch, pub_date)
-            if not news_list:
-                logger.info(
-                    'Stopping further processing due to API limit or empty response.'
-                )
+            news_list, exception_occurred = self._process_tags_bunch(tags_bunch, pub_date)
+            if exception_occurred:
+                logger.info('Stopping further processing due to API exception.')
                 break
+            if not news_list:
+                logger.info('No news found for the current tags bunch, continuing to the next bunch.')
             all_news.extend(news_list)
             logger.info(f'News list extended with {len(news_list)} new news')
 
