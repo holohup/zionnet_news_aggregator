@@ -61,11 +61,7 @@ You need to provide your email (used as a unique identifier for each user), pass
     2. Again with the help of AI, both the description and tags are used to validate the news and choose only the most interesting ones.
 When you press the 'Execute' button, you will be registered instantly. In the background, a process will launch to fill out the tags for you. You can see that in the response (which fetches the user info from the DB), the 'tags' field in 'settings' is empty.
 
-![empty tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags.png?raw=true)
-
 This will change when you authorize in the next step. After that, you can check the 'me' endpoint.
-
-![filled tags](https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true)
 
 <table>
   <tr>
@@ -73,8 +69,8 @@ This will change when you authorize in the next step. After that, you can check 
     <th>After</th>
   </tr>
   <tr>
-    <td><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags.png?raw=true" style="width: 45%;"></td>
-    <td><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true" style="width: 45%;"></td>
+    <td style="vertical-align: top;"><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/empty_tags.png?raw=true" style="max-width: 100%; height: auto;"></td>
+    <td style="vertical-align: top;"><img src="https://github.com/holohup/zionnet_news_aggregator/blob/main/img/filled_tags.png?raw=true" style="max-width: 100%; height: auto;"></td>
   </tr>
 </table>
 
