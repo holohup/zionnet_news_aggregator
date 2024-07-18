@@ -27,6 +27,7 @@ class ParsingConfig:
     news_expiration_hours: timedelta
     api_key: str
     max_query_chars: int
+    default_tags: str
 
 
 @dataclass
@@ -65,7 +66,11 @@ def load_config():
             hours_of_news_to_return_if_user_has_no_news_read_yet=48
         ),
         parsing=ParsingConfig(
-            max_entries=100, news_expiration_hours=timedelta(hours=24 * 7), api_key=api_key, max_query_chars=100
+            max_entries=100,
+            news_expiration_hours=timedelta(hours=24 * 7),
+            api_key=api_key,
+            max_query_chars=100,
+            default_tags='hi-tech, Biden, Trump, video games, Microsoft, nvidia, IBM, Tesla, celebrities'
         ),
         grpc=GRPCSettings(topic='news_tasks', port=50052, pubsub='pubsub', max_news_to_return=500),
         service_name='news_accessor'

@@ -33,7 +33,9 @@ class NewsUpdater:
     def update_news(self, request: Tags):
         """The public method to update the news given all users tags."""
 
-        tags_list = [tag.strip() for tag in request.tags.split(',')]
+        tags_to_strip = request.tags if request.tags else self._config.default_tags
+        logger.info(f'Preparing to parse news, tags are: {tags_to_strip}')
+        tags_list = [tag.strip() for tag in tags_to_strip.split(',')]
         tags_bunches = self._split_tags(tags_list)
         all_news = self._collect_news(tags_bunches, self._storage.get_latest_entry_time())
         self._save_news(all_news)
