@@ -65,7 +65,7 @@ class NewsUpdater:
         for page in range(1, total_pages + 1):
             config['offset'] = page * config['number']
             logger.info(f'Parsing page {page}/{total_pages}')
-            news_page = self._fetch_news_page(config, api_instance)
+            news_page, _ = self._fetch_news_page(config, api_instance)
             if not news_page:
                 break
             news_list.extend(news_page)
