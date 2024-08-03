@@ -19,9 +19,6 @@ class News_Accessor:
 
         logger.info('updating news')
         all_tags = await invoke_method(self._config.db_accessor_app_id, 'get_user_tags', '')
-        if not all_tags:
-            logger.info('No tags for users in system yet. Not proceeding.')
-            return
         logger.info(f'Tags received: {all_tags}')
         data = UpdateNewsRequest(detail=Tags(tags=all_tags))
         await publish_message(self._config.news.pubsub, self._config.news.topic, data.model_dump())
